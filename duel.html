@@ -37,7 +37,12 @@
             <span class="tile tile--sun">+</span>
             <span class="brand__name">O‘ynab o‘rgan</span>
           </a>
-          <a class="btn-chunk btn-chunk--ghost btn-sm" href="index.html">← Bosh sahifa</a>
+          <div class="setup__header-actions">
+            <button id="mobileGuideBtn" class="btn-chunk mobile-guide__trigger" type="button" aria-haspopup="dialog">
+              <span aria-hidden="true">✨</span> Qo‘llanma
+            </button>
+            <a class="btn-chunk btn-chunk--ghost btn-sm" href="index.html">← Bosh sahifa</a>
+          </div>
         </header>
 
         <div class="duel-hero">
@@ -301,6 +306,28 @@
       </div>
     </div>
   </div>
+
+  <dialog id="mobileGuideModal" class="mobile-guide" aria-labelledby="mobileGuideTitle">
+    <div class="mobile-guide__header">
+      <div>
+        <span class="mobile-guide__eyebrow">DO‘ST BILAN ONLINE</span>
+        <h2 id="mobileGuideTitle">Duel qo‘llanmasi</h2>
+      </div>
+      <span class="mobile-guide__mascot" aria-hidden="true">⚔️</span>
+    </div>
+    <p class="mobile-guide__intro">Ikki telefon, bitta xona kodi — va bellashuvga tayyorsiz!</p>
+    <ol class="mobile-guide__steps">
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">📱</span><span><strong>Ismingizni saqlang</strong><small>Bosh sahifadagi Profil bo‘limida yozgan ismingiz duelda ko‘rinadi.</small></span></li>
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">🏠</span><span><strong>Xona yarating</strong><small>“Room yaratish”ni bosing, o‘yin sozlamalarini tanlang va chiqqan 8 belgili kodni do‘stingizga yuboring.</small></span></li>
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">🔑</span><span><strong>Kod bilan qo‘shiling</strong><small>Do‘stingiz “Roomga qo‘shilish”ni bosib, siz yuborgan kodni kiritsin.</small></span></li>
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">🚀</span><span><strong>Ikkalangiz ham tayyor bo‘ling</strong><small>Har ikkala telefonda “Tayyorman”ni bosing. Umumiy sanoqdan so‘ng duel boshlanadi.</small></span></li>
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">🌐</span><span><strong>Internet kerak</strong><small>Ikkala qurilmada internet bo‘lsin. Bir xil Wi‑Fi shart emas; sayt HTTPS manzilda ochilishi kerak.</small></span></li>
+    </ol>
+    <div class="mobile-guide__footer">
+      <span>💡 Kodni faqat o‘ynaydigan do‘stingizga yuboring.</span>
+      <button id="closeMobileGuideBtn" class="btn-chunk btn-chunk--mint" type="button">Tushundim, boshlaymiz!</button>
+    </div>
+  </dialog>
 
   <canvas id="fx"></canvas>
 

@@ -556,6 +556,12 @@
   }
 
   /* ================= Tugmalar ================= */
+  const mobileGuide = $('mobileGuideModal');
+  $('mobileGuideBtn').addEventListener('click', () => mobileGuide.showModal());
+  $('closeMobileGuideBtn').addEventListener('click', () => mobileGuide.close());
+  mobileGuide.addEventListener('click', (event) => {
+    if (event.target === mobileGuide) mobileGuide.close();
+  });
   $('startBtn').addEventListener('click', startMatch);
   $('againBtn').addEventListener('click', async () => {
     if (onlineMode && window.FirebaseDuel) {
