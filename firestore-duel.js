@@ -203,7 +203,12 @@
     state.roomStatus = room.status;
     state.ownReady = Boolean(own && own.ready);
     if (onlineRoomLabelEl) onlineRoomLabelEl.textContent = state.roomCode;
-    if (onlineOpponentEl) onlineOpponentEl.textContent = other && other.name || 'Raqib kutilmoqda';
+    if (onlineOpponentEl) {
+      const opponentJoined = Boolean(other && other.name);
+      onlineOpponentEl.textContent = opponentJoined ? other.name : 'Raqib kutilmoqda';
+      onlineOpponentEl.classList.toggle('is-waiting', !opponentJoined);
+      onlineOpponentEl.setAttribute('aria-busy', String(!opponentJoined));
+    }
     if (onlineMyScoreEl) onlineMyScoreEl.textContent = String(own && own.progress && own.progress.correct || 0);
     if (onlineOpponentScoreEl) onlineOpponentScoreEl.textContent = String(other && other.progress && other.progress.correct || 0);
     if (onlineReadyEl) {

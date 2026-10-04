@@ -54,6 +54,13 @@ body.online-room .online-leave { display: block; }
 }
 .online-board > div:not(:last-child) { display: flex; justify-content: space-between; gap: 10px; }
 .online-board strong { color: var(--paper); }
+#onlineOpponent.is-waiting { display: inline-flex; align-items: center; gap: 8px; }
+#onlineOpponent.is-waiting::after {
+  content: ''; width: .85em; height: .85em; flex: none;
+  border: 2px solid rgba(255, 255, 255, .28); border-top-color: var(--mint);
+  border-radius: 50%; animation: opponent-spin .8s linear infinite;
+}
+@keyframes opponent-spin { to { transform: rotate(360deg); } }
 .online-status {
   margin: 12px 0 0; color: var(--mint); font-weight: 800; min-height: 1.4em;
 }
@@ -267,6 +274,7 @@ kbd {
   .modal, #countText, .result__icon, .timer.urgent .timer__time { animation: none; }
   .online-loading, .online-loading__signal span, .online-loading__track span { animation: none !important; }
   .online-ready.is-waiting, .online-ready.is-waiting::after { animation: none; }
+  #onlineOpponent.is-waiting::after { animation: none; }
 }
 
 body.online-room[data-online-role="host"] #board1,
