@@ -186,6 +186,9 @@
     if (state.unsubscribe) state.unsubscribe();
     state.unsubscribe = null;
     state.roomRef = null;
+    state.roomStatus = '';
+    state.ownReady = false;
+    syncActionButtons();
   }
 
   function updateRoomUi(room) {
