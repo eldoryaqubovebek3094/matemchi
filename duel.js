@@ -48,12 +48,55 @@
     const s = a.createBufferSource(), g = a.createGain();
     g.gain.value = 0.12; s.buffer = buf; s.connect(g); g.connect(a.destination); s.start();
   }
+  function wow() {
+    if (!settings.sound) return;
+    const a = audio(); if (!a) return;
+    const start = a.currentTime + 0.12;
+    [[330, 520, 0.1], [495, 780, 0.035]].forEach(([from, to, volume]) => {
+      const o = a.createOscillator(), g = a.createGain(), filter = a.createBiquadFilter();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(from, start);
+      o.frequency.exponentialRampToValueAtTime(to, start + 0.32);
+      o.frequency.exponentialRampToValueAtTime(from * 1.18, start + 0.9);
+      filter.type = 'lowpass'; filter.frequency.value = 1800;
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(volume, start + 0.12);
+      g.gain.setValueAtTime(volume, start + 0.48);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.95);
+      o.connect(filter); filter.connect(g); g.connect(a.destination);
+      o.start(start); o.stop(start + 0.96);
+    });
+  }
+  function applause() {
+    if (!settings.sound) return;
+    const a = audio(); if (!a) return;
+    const length = Math.floor(a.sampleRate * 0.055);
+    const buffer = a.createBuffer(1, length, a.sampleRate);
+    const samples = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) samples[i] = Math.random() * 2 - 1;
+
+    for (let i = 0; i < 24; i++) {
+      const start = a.currentTime + 0.25 + i * 0.055 + Math.random() * 0.035;
+      const source = a.createBufferSource(), filter = a.createBiquadFilter(), gain = a.createGain();
+      source.buffer = buffer;
+      filter.type = 'bandpass'; filter.frequency.value = 1500 + Math.random() * 1800; filter.Q.value = 0.7;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.025 + Math.random() * 0.035, start + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.052);
+      source.connect(filter); filter.connect(gain); gain.connect(a.destination);
+      source.start(start); source.stop(start + 0.055);
+    }
+  }
   const sfx = {
     ok: () => beep(880, 0.1, 'triangle'),
     bad: () => beep(160, 0.2, 'sawtooth', 0.1),
     tick: () => beep(660, 0.08, 'square', 0.06),
     go: () => beep(1040, 0.35, 'triangle', 0.18),
-    end: () => [523, 659, 784, 1046].forEach((f, i) => beep(f, 0.25, 'triangle', 0.15, i * 0.14)),
+    end: () => {
+      [523, 659, 784, 1046].forEach((f, i) => beep(f, 0.25, 'triangle', 0.15, i * 0.14));
+      wow();
+      applause();
+    },
   };
 
   /* ================= Ekranlar ================= */
