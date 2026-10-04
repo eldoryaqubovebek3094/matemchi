@@ -32,6 +32,20 @@ body.duel {
   padding: 12px 14px; font-size: .96rem; white-space: nowrap;
 }
 .online-ready { width: 100%; margin-top: 10px; }
+.online-ready.is-waiting {
+  --b: #a7f3d0; --bd: #34d399;
+  animation: ready-pulse 1.8s ease-in-out infinite;
+}
+.online-ready.is-waiting::after {
+  content: '···'; display: inline-block; width: 1.2em; text-align: left;
+  letter-spacing: .08em; animation: waiting-dots 1s ease-in-out infinite;
+}
+@keyframes ready-pulse {
+  50% { box-shadow: 0 6px 0 var(--bd), 0 0 22px rgba(52, 211, 153, .45); }
+}
+@keyframes waiting-dots {
+  50% { opacity: .35; transform: translateY(-2px); }
+}
 .online-leave { display: none; margin: 8px auto 0; }
 body.online-room .online-leave { display: block; }
 .online-board {
@@ -252,6 +266,7 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .modal, #countText, .result__icon, .timer.urgent .timer__time { animation: none; }
   .online-loading, .online-loading__signal span, .online-loading__track span { animation: none !important; }
+  .online-ready.is-waiting, .online-ready.is-waiting::after { animation: none; }
 }
 
 body.online-room[data-online-role="host"] #board1,

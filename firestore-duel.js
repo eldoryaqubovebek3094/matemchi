@@ -216,7 +216,17 @@
       onlineConfigSummaryEl.textContent = `${mode} · ${duration} · ${level}`;
     }
     if (readyRoomBtn) {
-      readyRoomBtn.textContent = own && own.ready ? 'Kutayabman...' : 'Tayyorman';
+      const isReady = Boolean(own && own.ready);
+      const opponentIsReady = Boolean(other && other.ready);
+      const waitingForOpponent = isReady && !opponentIsReady;
+      readyRoomBtn.classList.toggle('is-waiting', waitingForOpponent);
+      readyRoomBtn.textContent = !isReady
+        ? 'Tayyorman'
+        : opponentIsReady ? 'Ikkalangiz ham tayyorsiz!' : 'Siz tayyorsiz';
+      readyRoomBtn.setAttribute(
+        'aria-label',
+        waitingForOpponent ? 'Siz tayyorsiz, raqib kutilmoqda' : readyRoomBtn.textContent,
+      );
     }
     syncActionButtons();
 
