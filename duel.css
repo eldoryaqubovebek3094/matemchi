@@ -83,8 +83,15 @@ kbd {
 .screen--setup { overflow-y: auto; }
 .setup { padding-bottom: 20px; }
 .btn-sm.btn-chunk--ghost { color: var(--paper); }
-.setup__header-actions { display: flex; align-items: center; gap: 8px; }
-.mobile-guide__trigger { display: none; }
+.setup__home-btn {
+  flex: none; min-height: 42px; padding: 9px 14px; border: 1px solid rgba(255, 255, 255, .24);
+  border-radius: 14px; background: linear-gradient(135deg, #4cc3ff, #3979e8 60%, #6652da);
+  box-shadow: 0 4px 0 #294eae, 0 7px 18px rgba(57, 121, 232, .22);
+  color: #fff; font: 700 .94rem 'Fredoka', sans-serif; white-space: nowrap;
+}
+.setup__home-btn:hover { filter: brightness(1.08); transform: translateY(2px); box-shadow: 0 2px 0 #294eae; }
+.setup__home-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #294eae; }
+.mobile-duel__guide { display: none; }
 .mobile-guide {
   width: min(560px, calc(100% - 28px)); max-width: none; max-height: min(88dvh, 760px); padding: 0;
   overflow: auto; border: 2px solid #6657a8; border-bottom: 7px solid #4e3d91; border-radius: 26px;
@@ -324,16 +331,21 @@ body.online-room #pauseBtn { display: none; }
 }
 
 @media (max-width: 767px) {
-  .setup__header-actions { gap: 7px; }
-  .mobile-guide__trigger {
-    display: inline-flex; min-height: 40px; gap: 5px; padding: 8px 11px; border: 1px solid rgba(255, 255, 255, .24);
-    border-radius: 13px; background: linear-gradient(135deg, #9b6dff, #6652da 58%, #4cc3ff);
-    box-shadow: 0 4px 0 #41349d, 0 7px 18px rgba(102, 82, 218, .25); color: #fff;
-    font: 700 .9rem 'Fredoka', sans-serif; white-space: nowrap;
-  }
-  .mobile-guide__trigger:active { transform: translateY(3px); box-shadow: 0 1px 0 #41349d; }
-  .setup__header-actions > .btn-sm { padding: 8px 11px; font-size: .88rem; white-space: nowrap; }
+  .wrap.setup { width: 100%; }
+  .topbar-home { gap: 8px; }
+  .brand { min-width: 0; gap: 7px; }
+  .brand .tile { flex: none; font-size: 1.3rem; }
+  .brand__name { font-size: clamp(1rem, 4.5vw, 1.25rem); white-space: nowrap; }
+  .setup__home-btn { padding: 8px 11px; font-size: .88rem; }
   .mobile-duel { display: block; margin: 0 0 22px; }
+  .mobile-duel__guide {
+    display: flex; width: 100%; min-height: 44px; justify-content: space-between; margin: 0 0 10px; padding: 9px 14px;
+    border: 1px solid rgba(255, 255, 255, .2); border-radius: 14px;
+    background: linear-gradient(105deg, #9b6dff, #6652da 55%, #3979e8);
+    box-shadow: 0 4px 0 #41349d, 0 8px 20px rgba(102, 82, 218, .2);
+    color: #fff; font: 700 .98rem 'Fredoka', sans-serif;
+  }
+  .mobile-duel__guide:active { transform: translateY(3px); box-shadow: 0 1px 0 #41349d; }
   .online-loading {
     position: fixed; z-index: 120; inset: 0; display: grid; place-items: center; padding: 24px;
     background: rgba(12, 13, 31, .76); backdrop-filter: blur(8px); animation: onlineLoadingFade .18s ease-out;
@@ -422,6 +434,12 @@ body.online-room #pauseBtn { display: none; }
 }
 
 @media (max-width: 520px) {
+  .setup { padding-right: 12px; padding-left: 12px; }
+  .topbar-home { gap: 6px; }
+  .brand { gap: 5px; }
+  .brand .tile { font-size: 1.15rem; }
+  .brand__name { font-size: clamp(.94rem, 4.4vw, 1.12rem); letter-spacing: 0; }
+  .setup__home-btn { min-height: 40px; padding: 7px 9px; font-size: .82rem; }
   .mobile-guide { border-radius: 22px; }
   .mobile-guide__header { padding: 18px 16px 7px; }
   .mobile-guide__header h2 { font-size: 1.6rem; }
