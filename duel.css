@@ -13,6 +13,16 @@ body.duel {
 .btn-xl { padding: 16px 30px; font-size: 1.25rem; }
 .link-btn { background: none; border: 0; color: var(--muted); font: 700 .95rem 'Nunito', sans-serif; cursor: pointer; text-decoration: underline; padding: 4px 0; }
 .link-btn:hover { color: var(--paper); }
+.clear-names-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 2px; padding: 8px 13px;
+  border: 1px solid rgba(255, 111, 132, .3); border-radius: 13px;
+  background: rgba(255, 93, 115, .09); color: #ff9cab; text-decoration: none;
+  font-size: .88rem; transition: background .16s, border-color .16s, color .16s, transform .16s;
+}
+.clear-names-btn svg { width: 17px; height: 17px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.clear-names-btn:hover { transform: translateY(-1px); border-color: rgba(255, 111, 132, .65); background: rgba(255, 93, 115, .17); color: #ffd2d8; }
+.clear-names-btn:active { transform: translateY(1px); }
+.clear-names-btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
 .error { color: var(--coral); font-weight: 800; min-height: 1.4em; margin: 10px 0 0; text-align: center; }
 
 .online-duel {
