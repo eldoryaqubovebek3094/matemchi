@@ -37,7 +37,12 @@
             <span class="tile tile--sun">+</span>
             <span class="brand__name">O‘ynab o‘rgan</span>
           </a>
-          <a class="btn-chunk btn-sm setup__home-btn" href="index.html">🏠 Bosh sahifa</a>
+          <div class="setup__header-actions">
+            <button id="webGuideBtn" class="btn-chunk web-guide__trigger" type="button" aria-haspopup="dialog">
+              <span aria-hidden="true">🖥️</span> Web qo‘llanma
+            </button>
+            <a class="btn-chunk btn-sm setup__home-btn" href="index.html">🏠 Bosh sahifa</a>
+          </div>
         </header>
 
         <div class="duel-hero">
@@ -324,6 +329,29 @@
     <div class="mobile-guide__footer">
       <span>💡 Kodni faqat o‘ynaydigan do‘stingizga yuboring.</span>
       <button id="closeMobileGuideBtn" class="btn-chunk btn-chunk--mint" type="button">Tushundim, boshlaymiz!</button>
+    </div>
+  </dialog>
+
+  <dialog id="webGuideModal" class="web-guide" aria-labelledby="webGuideTitle">
+    <div class="web-guide__header">
+      <div>
+        <span class="web-guide__eyebrow">BIR QURILMADA • IKKI O‘YINCHI</span>
+        <h2 id="webGuideTitle">Web duel qo‘llanmasi</h2>
+      </div>
+      <span class="web-guide__mascot" aria-hidden="true">🎮</span>
+    </div>
+    <p class="web-guide__intro">Bitta kompyuter yoki interaktiv doskada yonma-yon bellashing. Internet orqali xona ochish shart emas.</p>
+    <ol class="web-guide__steps">
+      <li><span class="web-guide__step-icon" aria-hidden="true">✍️</span><span><strong>Ismlarni kiriting</strong><small>1- va 2-o‘yinchi ismini yozing. Bo‘sh qoldirsangiz, standart nomlar ishlatiladi.</small></span></li>
+      <li><span class="web-guide__step-icon" aria-hidden="true">⚙️</span><span><strong>Bellashuvni sozlang</strong><small>Misollar rejimi, o‘yin vaqtini va qiyinlikni tanlang.</small></span></li>
+      <li><span class="web-guide__step-icon" aria-hidden="true">⌨️</span><span><strong>Har kim o‘z tugmalaridan foydalanadi</strong><small>1-o‘yinchi: yuqori qatordagi 0–9, ⌫ uchun Backspace, yuborish uchun Enter. 2-o‘yinchi: raqamli panel, o‘chirish uchun Numpad . yoki +, yuborish uchun Numpad Enter.</small></span></li>
+      <li><span class="web-guide__step-icon" aria-hidden="true">📲</span><span><strong>Ekrandagi tugmalar ham bor</strong><small>Sensorli doskada yoki klaviaturasiz ekranda har bir o‘yinchi o‘z javob panelidan foydalanishi mumkin.</small></span></li>
+      <li><span class="web-guide__step-icon" aria-hidden="true">⏱️</span><span><strong>Tez va aniq yeching</strong><small>Vaqt tugaganda ko‘proq to‘g‘ri javob bergan yutadi. Teng bo‘lsa, tezlik hisobga olinadi.</small></span></li>
+      <li><span class="web-guide__step-icon" aria-hidden="true">⏸️</span><span><strong>Pauza va ovoz</strong><small>Space yoki Esc bilan pauza qiling; ovozni yuqoridagi 🔊 tugmasidan boshqaring.</small></span></li>
+    </ol>
+    <div class="web-guide__footer">
+      <span>💡 Bu rejim natijalarni shu qurilmadagi reytingga yozadi.</span>
+      <button id="closeWebGuideBtn" class="btn-chunk btn-chunk--mint" type="button">Tushundim, o‘ynaymiz!</button>
     </div>
   </dialog>
 

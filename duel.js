@@ -562,6 +562,12 @@
   mobileGuide.addEventListener('click', (event) => {
     if (event.target === mobileGuide) mobileGuide.close();
   });
+  const webGuide = $('webGuideModal');
+  $('webGuideBtn').addEventListener('click', () => webGuide.showModal());
+  $('closeWebGuideBtn').addEventListener('click', () => webGuide.close());
+  webGuide.addEventListener('click', (event) => {
+    if (event.target === webGuide) webGuide.close();
+  });
   $('startBtn').addEventListener('click', startMatch);
   $('againBtn').addEventListener('click', async () => {
     if (onlineMode && window.FirebaseDuel) {
