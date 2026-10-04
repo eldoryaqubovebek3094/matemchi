@@ -140,8 +140,12 @@ body.game .toast {
   .gcard { padding: 22px 26px; gap: 16px; }
 }
 @media (max-width: 520px) {
-  .gstats { width: 100%; }
-  .gstat { flex: 1; min-width: 0; padding: 4px 8px; }
+  .gstats { width: 100%; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+  .gstat { grid-column: span 2; grid-template-columns: auto minmax(0, 1fr); column-gap: 5px; min-width: 0; padding: 6px; }
+  .gstat--score, .gstat--level { grid-column: span 3; }
+  .gstat__ico { font-size: 1.15rem; }
+  .gstat__lab { font-size: .64rem; }
+  .gstat b { font-size: 1.2rem; }
   .gmode { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
