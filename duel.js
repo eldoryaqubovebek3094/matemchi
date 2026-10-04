@@ -15,6 +15,7 @@
   let elapsed = 0;     // o‘yin vaqti (ms), pauzada to‘xtaydi
   let total = 0;
   let tickId = null, lastTick = 0;
+  let lastTimerBeat = null;
   let timeouts = [];
   let modalOpen = false;
   let onlineMode = false;
@@ -91,6 +92,14 @@
     ok: () => beep(880, 0.1, 'triangle'),
     bad: () => beep(160, 0.2, 'sawtooth', 0.1),
     tick: () => beep(660, 0.08, 'square', 0.06),
+    timer: (secondsLeft) => {
+      const melody = [523, 659, 587, 784, 659, 587, 523, 698];
+      const elapsedSeconds = Math.max(0, Math.floor(total / 1000) - secondsLeft);
+      const urgent = secondsLeft <= 10;
+      beep(urgent ? [784, 880, 988, 880][elapsedSeconds % 4] : melody[elapsedSeconds % melody.length],
+        0.13, 'sine', urgent ? 0.055 : 0.032);
+      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.025, 0.12);
+    },
     go: () => beep(1040, 0.35, 'triangle', 0.18),
     end: () => {
       [523, 659, 784, 1046].forEach((f, i) => beep(f, 0.25, 'triangle', 0.15, i * 0.14));
@@ -468,12 +477,18 @@
 
   function startTicker() {
     lastTick = performance.now();
+    lastTimerBeat = Math.ceil(Math.max(0, total - elapsed) / 1000);
     clearInterval(tickId);
     tickId = setInterval(() => {
       const now = performance.now(), dt = Math.min(now - lastTick, 250); lastTick = now;
       if (phase !== 'playing') return;
       elapsed = onlineMode ? Math.max(0, window.FirebaseDuel.serverNow() - onlineStartedAt) : elapsed + dt;
       if (elapsed >= total) { elapsed = total; renderTimer(); finish(); return; }
+      const secondsLeft = Math.ceil((total - elapsed) / 1000);
+      if (!onlineMode && secondsLeft !== lastTimerBeat) {
+        lastTimerBeat = secondsLeft;
+        sfx.timer(secondsLeft);
+      }
       renderTimer();
     }, 100);
   }
