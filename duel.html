@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bellashuv — O‘ynab o‘rgan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="duel.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body class="duel home">
+
+  <!-- Kichik ekran uchun ogohlantirish -->
+  <div class="small-note">
+    <div class="modal">
+      <div class="modal__icon"><span class="tile tile--sky">🖥️</span></div>
+      <h2>Bellashuv — katta ekran uchun</h2>
+      <p>Bu rejim kompyuter yoki interaktiv doska (kamida 1024px) uchun mo‘ljallangan.</p>
+      <div class="modal__actions"><a class="btn-chunk" href="index.html">Bosh sahifa</a></div>
+    </div>
+  </div>
+
+  <div class="duel-app">
+
+    <!-- ========== 1) SOZLAMALAR ========== -->
+    <section id="screenSetup" class="screen screen--setup is-active">
+      <div class="wrap setup">
+
+        <header class="topbar-home">
+          <a class="brand" href="index.html" aria-label="Bosh sahifa">
+            <span class="tile tile--sun">+</span>
+            <span class="brand__name">O‘ynab o‘rgan</span>
+          </a>
+          <a class="btn-chunk btn-chunk--ghost btn-sm" href="index.html">← Bosh sahifa</a>
+        </header>
+
+        <div class="duel-hero">
+          <div>
+            <h1>Bellashuv</h1>
+            <p class="duel-hero__lead">Ikki o‘quvchi, bitta taymer. Kim ko‘p va tez yechsa — o‘sha g‘olib!</p>
+          </div>
+          <div class="duel-viz" aria-hidden="true">
+            <div class="duel-viz__side duel-viz__side--1"><small>1-o‘quvchi</small>12 × 4</div>
+            <div class="duel-viz__vs"><span>VS</span></div>
+            <div class="duel-viz__side duel-viz__side--2"><small>2-o‘quvchi</small>9 + 8</div>
+          </div>
+        </div>
+
+        <section class="mobile-duel" aria-label="Telefon orqali do‘st bilan bellashuv">
+          <div id="mobileRoomChoices" class="mobile-duel__choices">
+            <h2>Do‘st bilan bellashuv</h2>
+            <p>Bir telefon xona yaratadi, ikkinchisi xona kodi bilan qo‘shiladi.</p>
+            <div class="mobile-duel__actions">
+              <button id="showCreateRoomBtn" class="btn-chunk btn-chunk--sky" type="button">Room yaratish</button>
+              <button id="showJoinRoomBtn" class="btn-chunk btn-chunk--mint" type="button">Roomga qo‘shilish</button>
+            </div>
+          </div>
+
+          <div id="mobileCreateForm" class="mobile-duel__form" hidden>
+            <button class="mobile-duel__back" type="button" data-mobile-back>← Orqaga</button>
+            <h2>Yangi xona</h2>
+            <span class="mobile-duel__label">Do‘stingizga yuboriladigan xona kodi</span>
+            <div class="room-code-display">
+              <output id="createRoomCodeInput" aria-live="polite">--------</output>
+              <button id="regenerateRoomCodeBtn" class="room-code-display__refresh" type="button" aria-label="Yangi xona kodi yaratish" title="Yangi kod">↻</button>
+            </div>
+            <div class="mobile-duel__settings">
+              <h3>Rejim</h3>
+              <div class="chips" data-group="mode">
+                <button class="chip" data-value="addsub" type="button"><span class="chip__sym">+ −</span> Qo‘shish / Ayirish</button>
+                <button class="chip" data-value="multdiv" type="button"><span class="chip__sym">× ÷</span> Ko‘paytirish / Bo‘lish</button>
+              </div>
+              <h3>Vaqt</h3>
+              <div class="chips" data-group="duration">
+                <button class="chip" data-value="30" type="button">30 soniya</button>
+                <button class="chip" data-value="60" type="button">1 daqiqa</button>
+                <button class="chip" data-value="90" type="button">1,5 daqiqa</button>
+                <button class="chip" data-value="120" type="button">2 daqiqa</button>
+                <button class="chip" data-value="180" type="button">3 daqiqa</button>
+              </div>
+              <h3>Qiyinlik</h3>
+              <div class="chips" data-group="level">
+                <button class="chip" data-value="auto" type="button">Avto</button>
+                <button class="chip" data-value="1" type="button">1-daraja</button>
+                <button class="chip" data-value="2" type="button">2-daraja</button>
+                <button class="chip" data-value="3" type="button">3-daraja</button>
+              </div>
+            </div>
+            <button id="createRoomBtn" class="btn-chunk btn-chunk--sky mobile-duel__submit" type="button">Xonani yaratish</button>
+          </div>
+
+          <div id="mobileJoinForm" class="mobile-duel__form" hidden>
+            <button class="mobile-duel__back" type="button" data-mobile-back>← Orqaga</button>
+            <h2>Xonaga qo‘shilish</h2>
+            <label class="mobile-duel__label" for="joinRoomCodeInput">Do‘stingiz yuborgan xona kodi</label>
+            <input id="joinRoomCodeInput" type="text" maxlength="8" placeholder="Masalan: A7K2M9Q4" autocomplete="off" />
+            <p class="mobile-duel__note">Ismingiz avtomatik ravishda “2-o‘yinchi” bo‘ladi. O‘yin sozlamalarini xona egasi tanlaydi.</p>
+            <button id="joinRoomBtn" class="btn-chunk btn-chunk--mint mobile-duel__submit" type="button">Xonaga qo‘shilish</button>
+          </div>
+
+          <div id="mobileRoomLobby" class="mobile-duel__lobby" hidden>
+            <h2>Bellashuv xonasi</h2>
+            <p id="onlineConfigSummary" class="mobile-duel__note"></p>
+            <div id="onlineBoard" class="online-board" aria-live="polite">
+              <div><span>Raqib</span><strong id="onlineOpponent">Kutilmoqda</strong></div>
+              <div><span>Xona kodi</span><strong id="onlineRoomLabel">—</strong></div>
+              <div><span>Hisob</span><strong><span id="onlineMyScore">0</span> : <span id="onlineOpponentScore">0</span></strong></div>
+              <div id="onlineReady">Tayyorgarlik kutilmoqda</div>
+            </div>
+            <button id="readyRoomBtn" class="btn-chunk btn-chunk--mint online-ready" type="button">Tayyorman</button>
+            <button id="leaveRoomBtn" class="link-btn online-leave" type="button">Xonadan chiqish</button>
+          </div>
+          <p id="onlineStatus" class="online-status" role="status" aria-live="polite">Firebase serveri avtomatik tekshirilmoqda…</p>
+          <div id="onlineLoading" class="online-loading" hidden role="status" aria-live="assertive" aria-busy="true">
+            <div class="online-loading__panel">
+              <div class="online-loading__signal" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <p class="online-loading__eyebrow">DO‘ST BILAN BELLASHUV</p>
+              <h2 id="onlineLoadingTitle">Ulanish tekshirilmoqda</h2>
+              <p id="onlineLoadingDetail">Firebase serveriga xavfsiz ulanish tayyorlanyapti.</p>
+              <div class="online-loading__track" aria-hidden="true"><span></span></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="setup__grid">
+
+          <!-- Chap ustun: o‘quvchilar va sozlamalar -->
+          <div class="panel">
+            <h3>Kim bellashadi?</h3>
+            <div class="names">
+              <label class="name name--1">
+                <span class="avatar" id="av1">1</span>
+                <span class="name__box">
+                  <small>1-o‘quvchi (chap)</small>
+                  <input id="name1" type="text" maxlength="20" placeholder="Ism yozing" autocomplete="off" />
+                </span>
+              </label>
+              <label class="name name--2">
+                <span class="avatar" id="av2">2</span>
+                <span class="name__box">
+                  <small>2-o‘quvchi (o‘ng)</small>
+                  <input id="name2" type="text" maxlength="20" placeholder="Ism yozing" autocomplete="off" />
+                </span>
+              </label>
+            </div>
+            <button id="clearNames" class="link-btn" type="button">Ismlarni tozalash</button>
+
+            <h3 class="gap">Rejim</h3>
+            <div class="chips" data-group="mode">
+              <button class="chip" data-value="addsub" type="button"><span class="chip__sym">+ −</span> Qo‘shish / Ayirish</button>
+              <button class="chip" data-value="multdiv" type="button"><span class="chip__sym">× ÷</span> Ko‘paytirish / Bo‘lish</button>
+            </div>
+
+            <h3 class="gap">Vaqt</h3>
+            <div class="chips" data-group="duration">
+              <button class="chip" data-value="30" type="button">30 s</button>
+              <button class="chip" data-value="60" type="button">1 daqiqa</button>
+              <button class="chip" data-value="90" type="button">1.5 daqiqa</button>
+              <button class="chip" data-value="120" type="button">2 daqiqa</button>
+              <button class="chip" data-value="180" type="button">3 daqiqa</button>
+            </div>
+
+            <h3 class="gap">Qiyinlik</h3>
+            <div class="chips" data-group="level">
+              <button class="chip" data-value="auto" type="button">Avto (o‘sib boradi)</button>
+              <button class="chip" data-value="1" type="button">1-daraja</button>
+              <button class="chip" data-value="2" type="button">2-daraja</button>
+              <button class="chip" data-value="3" type="button">3-daraja</button>
+            </div>
+
+            <button id="startBtn" class="btn-chunk btn-chunk--mint btn-xl" type="button">🚀 Bellashuvni boshlash</button>
+            <p id="setupError" class="error" role="alert"></p>
+          </div>
+
+          <!-- O‘ng ustun: boshqaruv va reyting -->
+          <div class="stack">
+            <div class="panel">
+              <h3>Boshqaruv</h3>
+              <div class="keys-help">
+                <div class="khelp khelp--1">
+                  <div class="khelp__who">1-o‘quvchi</div>
+                  <div class="khelp__row"><kbd>0–9</kbd><span>yuqori qatordagi raqamlar</span></div>
+                  <div class="khelp__row"><kbd>Backspace</kbd><span>o‘chirish</span></div>
+                  <div class="khelp__row"><kbd>Enter</kbd><span>yuborish</span></div>
+                </div>
+                <div class="khelp khelp--2">
+                  <div class="khelp__who">2-o‘quvchi</div>
+                  <div class="khelp__row"><kbd>Numpad 0–9</kbd><span>o‘ng tomondagi raqamlar</span></div>
+                  <div class="khelp__row"><kbd>.</kbd> <kbd>+</kbd><span>o‘chirish</span></div>
+                  <div class="khelp__row"><kbd>Numpad Enter</kbd><span>yuborish</span></div>
+                </div>
+              </div>
+              <ul class="tips">
+                <li>Javob uzunligi yetganda o‘zi yuboriladi.</li>
+                <li>Sensorli doskada ekrandagi tugmalar ham ishlaydi.</li>
+                <li><kbd>Space</kbd> yoki <kbd>Esc</kbd> — pauza.</li>
+              </ul>
+            </div>
+
+            <div class="panel">
+              <div class="rank__head">
+                <h3>🏅 O‘quvchilar reytingi</h3>
+                <button id="clearLog" class="link-btn" type="button">Tozalash</button>
+              </div>
+              <div id="rankTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer-home">© 2026 Yaqubov Eldor. Barcha huquqlar himoyalangan.</footer>
+      </div>
+    </section>
+
+    <!-- ========== 2) O‘YIN ========== -->
+    <section id="screenGame" class="screen screen--game">
+      <div class="gbar">
+        <div class="gbar__side">
+          <button id="pauseBtn" class="btn-chunk btn-chunk--ghost btn-sm" type="button">⏸ Pauza</button>
+          <button id="soundBtn" class="btn-chunk btn-chunk--ghost btn-sm" type="button" aria-label="Ovoz">🔊</button>
+        </div>
+        <div class="timer" id="timer">
+          <div class="timer__time" id="timerText">01:00</div>
+          <div class="timer__bar"><div id="timerBar"></div></div>
+        </div>
+        <div class="gbar__side gbar__side--right">
+          <button id="exitBtn" class="btn-chunk btn-chunk--coral btn-sm" type="button">Chiqish</button>
+        </div>
+      </div>
+
+      <div class="boards">
+        <div class="board board--1" id="board0"></div>
+        <div class="divider"><span>VS</span></div>
+        <div class="board board--2" id="board1"></div>
+      </div>
+    </section>
+
+    <!-- ========== MODALLAR ========== -->
+
+    <!-- 3-2-1 -->
+    <div id="countdown" class="overlay overlay--count">
+      <div id="countText" data-step="0">3</div>
+    </div>
+
+    <!-- Pauza -->
+    <div id="pauseOverlay" class="overlay">
+      <div class="modal">
+        <div class="modal__icon"><span class="tile tile--sky">⏸</span></div>
+        <h2>Pauza</h2>
+        <p>Vaqt to‘xtatildi. Davom etish uchun tugmani yoki <kbd>Space</kbd> ni bosing.</p>
+        <div class="modal__actions">
+          <button id="resumeBtn" class="btn-chunk btn-chunk--mint btn-xl" type="button">▶ Davom etish</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Natija -->
+    <section id="screenResult" class="overlay overlay--result">
+      <div class="modal modal--result">
+        <div class="result__icon" id="resIcon">🏆</div>
+        <h1 id="resTitle"></h1>
+        <p id="resReason" class="result__reason"></p>
+        <div class="result__cols" id="resCols"></div>
+
+        <div class="result__lists">
+          <div class="lcard lcard--win">
+            <h3>🏆 Yutganlar</h3>
+            <ol id="listWin"></ol>
+          </div>
+          <div class="lcard lcard--lose">
+            <h3>😔 Yutqazganlar</h3>
+            <ol id="listLose"></ol>
+          </div>
+        </div>
+
+        <div class="modal__actions">
+          <button id="againBtn" class="btn-chunk btn-chunk--mint btn-xl" type="button">🔁 Qayta o‘ynash</button>
+          <button id="settingsBtn" class="btn-chunk btn-chunk--sky btn-xl" type="button">⚙️ Sozlamalar</button>
+          <a href="index.html" class="btn-chunk btn-chunk--ghost btn-xl">🏠 Bosh sahifa</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tasdiqlash -->
+    <div id="confirmModal" class="overlay overlay--confirm" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+      <div class="modal">
+        <div class="modal__icon"><span class="tile tile--coral" id="cfIcon">❓</span></div>
+        <h2 id="cfTitle">Ishonchingiz komilmi?</h2>
+        <p id="cfText"></p>
+        <div class="modal__actions">
+          <button id="cfNo" class="btn-chunk btn-chunk--ghost" type="button">Bekor qilish</button>
+          <button id="cfYes" class="btn-chunk btn-chunk--coral" type="button">Ha</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="fx"></canvas>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="duel.js"></script>
+  <script src="firestore-duel.js"></script>
+</body>
+</html>

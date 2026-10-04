@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>O‘yin — O‘ynab o‘rgan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="game.css" />
+  <script>
+(function() {
+  // O‘ng tugma menyusini bloklash
+  document.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+  });
+
+  // Klaviatura kombinatsiyalarini bloklash
+  document.addEventListener("keydown", function(e) {
+    const key = e.key.toLowerCase();
+
+    // F12
+    if (key === "f12") e.preventDefault();
+
+    // Ctrl+Shift+I / J / C
+    if (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(key)) e.preventDefault();
+
+    // Ctrl+U (View Source)
+    if (e.ctrlKey && key === "u") e.preventDefault();
+  });
+
+  // Oddiy devtools aniqlash
+  (function devtoolsDetect() {
+    const element = new Image();
+    Object.defineProperty(element, 'id', {
+      get: function() {
+        alert("Developer Tools bloklangan!");
+      }
+    });
+    console.log(element);
+  })();
+
+  // Kodni chalkashtirish (obfuskatsiya) misoli
+  // Aslida bu kod oddiy, lekin chalkashtirilgan ko‘rinishda yoziladi
+  eval(function(p,a,c,k,e,d){
+    e=function(c){return c.toString(a)};
+    if(!''.replace(/^/,String)){
+      while(c--)d[e(c)]=k[c]||e(c);
+      k=[function(e){return d[e]}];
+      e=function(){return'\\w+'};
+      c=1;
+    }
+    while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);
+    return p;
+  }('2.1("3","4",5);',6,6,'|addEventListener|document|click|function|()=>alert("Bosildi!")'.split('|'),0,{}));
+})();
+</script>
+</head>
+<body class="page page--game home game">
+  <div class="gwrap">
+
+    <header class="ghead">
+      <div class="gmode" id="modeLabel"></div>
+      <div class="gstats">
+        <div class="gstat gstat--score"><span class="gstat__ico">⭐</span><span class="gstat__lab">Ball</span><b id="score">0</b></div>
+        <div class="gstat gstat--level"><span class="gstat__ico">🏆</span><span class="gstat__lab">Daraja</span><b id="level">1</b></div>
+        <div class="gstat gstat--streak"><span class="gstat__ico">🔥</span><span class="gstat__lab">Seriya</span><b id="streak">0</b></div>
+        <div class="gstat gstat--accuracy"><span class="gstat__ico">📈</span><span class="gstat__lab">Aniqlik</span><b id="accuracy">0%</b></div>
+        <div class="gstat gstat--best"><span class="gstat__ico">⚡</span><span class="gstat__lab">Best</span><b id="bestStreak">0</b></div>
+      </div>
+    </header>
+
+    <div class="gmeta">
+      <div class="gmeta__panel">
+        <span class="gmeta__label">Combo</span>
+        <div class="gmeta__combo"><span id="comboFill"></span></div>
+      </div>
+      <div class="gmeta__panel gmeta__panel--accent">
+        <span class="gmeta__label">Bonus</span>
+        <strong id="boostStatus">x1</strong>
+      </div>
+    </div>
+
+    <div class="gprog" aria-label="Daraja jarayoni">
+      <div class="gprog__txt"><span>Keyingi darajagacha</span><span id="progText">0/10</span></div>
+      <div class="gprog__bar"><div id="progBar"></div></div>
+    </div>
+
+    <main class="gcard" id="gcard">
+      <div id="questionText" class="gq" aria-live="polite"></div>
+      <div id="visualAid" class="visual"></div>
+      <div id="answers" class="answers"></div>
+      <p class="ghint" id="hint"></p>
+    </main>
+
+    <div class="gquick">
+      <button id="hintBtn" class="btn-chunk btn-chunk--sky" type="button">💡 Yordam</button>
+      <button id="boostBtn" class="btn-chunk btn-chunk--mint" type="button">⚡ X2 bonus</button>
+      <button id="soundBtn" class="btn-chunk btn-chunk--ghost" type="button" aria-label="Ovoz">🔊</button>
+    </div>
+
+    <div class="gctrl">
+      <button id="skipBtn" class="btn-chunk btn-chunk--ghost" type="button">⏭ O‘tkazib yuborish</button>
+      <button id="endBtn" class="btn-chunk btn-chunk--coral" type="button">🏁 Yakunlash</button>
+    </div>
+  </div>
+
+  <!-- Yangi daraja -->
+  <div id="levelUp" class="levelup" aria-live="polite">
+    <div class="levelup__box"><span class="levelup__ico">🎉</span><span id="levelUpText">2-daraja!</span></div>
+  </div>
+
+  <!-- Yakunlashni tasdiqlash -->
+  <div id="confirmModal" class="overlay" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+    <div class="modal">
+      <div class="modal__icon"><span class="tile tile--sun">🏁</span></div>
+      <h2 id="cfTitle">O‘yinni yakunlaymizmi?</h2>
+      <p>Hozirgi natijangiz saqlanadi va natijalar sahifasi ochiladi.</p>
+      <div class="modal__actions">
+        <button id="cfNo" class="btn-chunk btn-chunk--ghost" type="button">Davom etish</button>
+        <button id="cfYes" class="btn-chunk btn-chunk--mint" type="button">Ha, yakunlash</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="ui.js"></script>
+  <script>
+    // ---------- Parametrlar ----------
+    const params = new URLSearchParams(location.search);
+    let mode = params.get('mode');
+    if (!Config.modes[mode]) mode = 'addsub';
+    const style = params.get('style') === 'keypad' ? 'keypad' : 'choices';
+
+    const $ = (id) => document.getElementById(id);
+    const SYM = { addsub: '+ −', multdiv: '× ÷' };
+    const modeEl = $('modeLabel');
+    modeEl.innerHTML = '<span class="gmode__sym"></span><span class="gmode__txt"><b></b><small></small></span>';
+    modeEl.querySelector('.gmode__sym').textContent = SYM[mode];
+    modeEl.querySelector('b').textContent = Config.modes[mode].label;
+    modeEl.querySelector('small').textContent = style === 'keypad' ? 'Klaviatura bilan' : 'Variantlar bilan';
+    $('hint').textContent = style === 'keypad'
+      ? '💡 Kompyuterda raqamlar, Backspace va Enter tugmalari ham ishlaydi'
+      : '💡 Kompyuterda 1–4 tugmalari bilan ham tanlash mumkin';
+
+    const state = App.createGameState({ mode, style });
+    const PRAISE = ['To‘g‘ri! 👏', 'Barakalla! 🌟', 'Ofarin! 🎯', 'Zo‘r! 💪', 'Ajoyib! ✨'];
+    let modalOpen = false;
+    let soundEnabled = true;
+    let hintsLeft = 2;
+    let bonusActive = false;
+    let boostCooldown = 0;
+    let bestCombo = 0;
+
+    function playTone(kind = 'ok') {
+      if (!soundEnabled || typeof window.AudioContext === 'undefined') return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = kind === 'ok' ? 'triangle' : 'sawtooth';
+      osc.frequency.value = kind === 'ok' ? 660 : 220;
+      gain.gain.value = 0.04;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.12);
+    }
+
+    function updateHud() {
+      const accuracy = state.asked ? Math.round((state.correct / state.asked) * 100) : 0;
+      const comboPct = Math.min(100, (state.streak / 5) * 100);
+      bestCombo = Math.max(bestCombo, state.streak);
+      $('score').textContent = state.score;
+      $('level').textContent = state.level;
+      $('streak').textContent = state.streak;
+      $('accuracy').textContent = `${accuracy}%`;
+      $('bestStreak').textContent = String(bestCombo);
+      $('comboFill').style.width = `${comboPct}%`;
+      $('boostStatus').textContent = bonusActive ? 'x2' : 'x1';
+      $('hintBtn').textContent = `💡 Yordam (${hintsLeft})`;
+      $('boostBtn').textContent = bonusActive ? '⚡ Aktiv' : `⚡ X2 bonus (${boostCooldown > 0 ? boostCooldown + 's' : 'tayyor'})`;
+      $('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    function flashComboBurst() {
+      const ring = document.querySelector('.gmeta__panel--accent');
+      if (!ring) return;
+      ring.classList.remove('pulse'); void ring.offsetWidth;
+      ring.classList.add('pulse');
+      setTimeout(() => ring.classList.remove('pulse'), 420);
+    }
+
+    function useHint() {
+      if (hintsLeft <= 0) {
+        $('hint').textContent = '💡 Yordamlar tugadi. Keyingi savolga o‘ting.';
+        return;
+      }
+      const q = state.currentQuestion;
+      const clue = q.answer % 2 === 0 ? 'javob juft son' : 'javob toq son';
+      const label = q.op === '÷' ? 'javob butun son bo‘ladi' : q.answer > 10 ? 'javob 10 dan katta bo‘ladi' : 'javob 10 dan kichik bo‘ladi';
+      $('hint').textContent = `💡 Yordam: ${label}; ${clue}.`;
+      hintsLeft -= 1;
+      updateHud();
+    }
+
+    function activateBoost() {
+      if (bonusActive || boostCooldown > 0) return;
+      bonusActive = true;
+      flashComboBurst();
+      updateHud();
+      setTimeout(() => {
+        bonusActive = false;
+        boostCooldown = 8;
+        updateHud();
+        const t = setInterval(() => {
+          boostCooldown -= 1;
+          updateHud();
+          if (boostCooldown <= 0) {
+            clearInterval(t);
+            updateHud();
+          }
+        }, 1000);
+      }, 7000);
+    }
+
+    // ---------- Savol plitkalari ----------
+    function paintQuestion(q) {
+      const mk = (cls, txt) => { const s = document.createElement('span'); s.className = cls; s.textContent = txt; return s; };
+      $('questionText').replaceChildren(
+        mk('qtile qtile--a', q.a), mk('qop', q.op), mk('qtile qtile--b', q.b), mk('qop', '='), mk('qtile qtile--x', '?')
+      );
+    }
+
+    function levelUp(n) {
+      $('levelUpText').textContent = `${n}-daraja!`;
+      const el = $('levelUp');
+      el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1500);
+    }
+
+    function advance(prevLevel) {
+      App.nextQuestion(state);
+      if (state.level > prevLevel) levelUp(state.level);
+      render();
+    }
+
+    function render() {
+      const q = state.currentQuestion;
+      paintQuestion(q);
+      updateHud();
+
+      const per = Config.session.questionsPerLevel;
+      const inLevel = state.asked % per;
+      $('progText').textContent = `${inLevel}/${per}`;
+      $('progBar').style.width = (inLevel / per * 100) + '%';
+
+      UI.renderVisualAid($('visualAid'), q);
+      UI.renderAnswers($('answers'), q, style, (answer) => {
+        const correct = App.checkAnswer(state, answer, bonusActive ? 2 : 1);
+        UI.flashAnswer(correct);
+        if (correct) {
+          playTone('ok');
+          const msg = bonusActive
+            ? `⚡ X2 bonus! ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`
+            : (state.streak > 0 && state.streak % 5 === 0
+              ? `🔥 ${state.streak} ta ketma-ket!`
+              : PRAISE[Math.floor(Math.random() * PRAISE.length)]);
+          UI.toast(msg);
+        } else {
+          playTone('bad');
+          UI.toast(`Noto‘g‘ri. To‘g‘ri javob: ${q.answer}`);
+        }
+        bonusActive = false;
+        updateHud();
+        advance(state.level);
+      });
+    }
+
+    $('skipBtn').addEventListener('click', () => {
+      const prev = state.level;
+      App.skipQuestion(state);
+      if (state.level > prev) levelUp(state.level);
+      render();
+    });
+
+    $('hintBtn').addEventListener('click', useHint);
+    $('boostBtn').addEventListener('click', activateBoost);
+    $('soundBtn').addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      updateHud();
+    });
+
+    // ---------- Yakunlash (chiroyli modal) ----------
+    function openEnd() { modalOpen = true; $('confirmModal').classList.add('is-active'); $('cfNo').focus(); }
+    function closeEnd() { modalOpen = false; $('confirmModal').classList.remove('is-active'); }
+    $('endBtn').addEventListener('click', openEnd);
+    $('cfNo').addEventListener('click', closeEnd);
+    $('cfYes').addEventListener('click', () => { App.finishGame(state); location.href = 'results.html'; });
+
+    // ---------- Klaviatura (kompyuter uchun) ----------
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Escape') { e.preventDefault(); modalOpen ? closeEnd() : openEnd(); return; }
+      if (modalOpen || e.repeat) return;
+      const k = e.key;
+      if (style === 'keypad') {
+        if (/^\d$/.test(k)) [...document.querySelectorAll('.key')].find((b) => b.textContent === k)?.click();
+        else if (k === 'Backspace') document.querySelector('.key--del')?.click();
+        else if (k === 'Enter') document.querySelector('.key--ok')?.click();
+      } else if (/^[1-4]$/.test(k)) {
+        document.querySelectorAll('.answer-btn')[Number(k) - 1]?.click();
+      }
+    });
+
+    // ---------- Boshlash ----------
+    App.startGame(state);
+    render();
+  </script>
+</body>
+</html>

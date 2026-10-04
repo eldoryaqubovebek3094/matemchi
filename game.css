@@ -1,0 +1,149 @@
+/* ===== O‘yin sahifasi (home.css ustiga qurilgan) ===== */
+body.game { min-height: 100vh; min-height: 100dvh; }
+.gwrap { width: min(760px, 100% - 24px); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; gap: 12px; padding: 14px 0 18px; }
+
+/* Yuqori panel */
+.ghead { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.gmode { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(255,201,51,.18), rgba(76,195,255,.14)); border: 3px solid var(--line); border-radius: 18px; padding: 6px 14px 6px 8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); }
+.gmode__sym { background: var(--sun); color: var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--sun-d); padding: 2px 10px; font: 700 1.2rem 'Fredoka', sans-serif; }
+.gmode__txt { display: grid; line-height: 1.15; }
+.gmode__txt b { font: 700 1.05rem 'Fredoka', sans-serif; }
+.gmode__txt small { color: var(--muted); font-weight: 700; }
+
+.gstats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.gstat { display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; align-items: center; column-gap: 8px; background: linear-gradient(180deg, rgba(29,26,61,.94), rgba(20,18,43,.96)); border: 3px solid var(--line); border-bottom-width: 5px; border-radius: 16px; padding: 4px 12px; min-width: 88px; box-shadow: 0 10px 16px rgba(6, 10, 24, .25); }
+.gstat__ico { grid-row: 1 / 3; font-size: 1.4rem; }
+.gstat__lab { color: var(--muted); font-size: .72rem; font-weight: 800; line-height: 1; }
+.gstat b { font: 700 1.4rem/1.1 'Fredoka', sans-serif; text-align: left; }
+.gstat--score b { color: var(--sun); } .gstat--level b { color: var(--sky); } .gstat--streak b { color: var(--coral); } .gstat--accuracy b { color: var(--mint); } .gstat--best b { color: var(--grape); }
+
+.gmeta { display: grid; grid-template-columns: 1.4fr .7fr; gap: 10px; }
+.gmeta__panel { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 18px; background: rgba(12, 15, 30, .82); border: 3px solid var(--line); }
+.gmeta__label { color: var(--muted); font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.gmeta__combo { position: relative; width: 120px; height: 12px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; border: 2px solid rgba(255,255,255,.08); }
+.gmeta__combo span { position: absolute; inset: 0 auto 0 0; width: 0; display: block; border-radius: 999px; background: linear-gradient(90deg, var(--mint), var(--sky), var(--sun)); transition: width .25s ease; }
+.gmeta__panel--accent { justify-content: center; background: linear-gradient(135deg, rgba(46, 204, 113, .14), rgba(155,109,255,.2)); }
+.gmeta__panel--accent strong { font: 700 1.2rem 'Fredoka', sans-serif; color: var(--sun); }
+.gmeta__panel--accent.pulse { animation: pulsePanel .42s ease; }
+@keyframes pulsePanel { 0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,201,51,0); } 50% { transform: scale(1.04); box-shadow: 0 0 18px rgba(255,201,51,.46); } 100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,201,51,0); } }
+
+/* Daraja jarayoni */
+.gprog__txt { display: flex; justify-content: space-between; color: var(--muted); font-weight: 800; font-size: .9rem; margin-bottom: 4px; }
+.gprog__bar { height: 12px; border-radius: 99px; background: var(--ink2); border: 2px solid var(--line); overflow: hidden; }
+.gprog__bar div { height: 100%; width: 0; background: linear-gradient(90deg, var(--mint), var(--sky), var(--sun)); border-radius: 99px; transition: width .35s ease; }
+
+/* Asosiy karta */
+.gcard {
+  flex: 1; display: flex; flex-direction: column; gap: 14px; justify-content: center;
+  background: var(--ink2); border: 3px solid var(--line); border-bottom: 9px solid var(--grape-d);
+  border-radius: 30px; padding: 18px 16px; transition: background .2s, border-color .2s;
+}
+body.game.flash-ok, body.game.flash-bad { animation: none; }
+body.flash-ok .gcard { border-color: var(--mint); background: #1b3a45; }
+body.flash-bad .gcard { border-color: var(--coral); background: #442338; animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+/* Savol plitkalari */
+.gq { display: flex; justify-content: center; align-items: center; gap: clamp(6px, 2vw, 14px); flex-wrap: nowrap; font-family: 'Fredoka', sans-serif; }
+.qtile {
+  display: inline-grid; place-items: center; min-width: 1.5em; height: 1.5em; padding: 0 .22em; border-radius: 20px;
+  font-weight: 700; font-size: clamp(2.3rem, 11vw, 4.6rem); line-height: 1; color: var(--ink);
+}
+.qtile--a { background: var(--sun); box-shadow: 0 6px 0 var(--sun-d); }
+.qtile--b { background: var(--mint); box-shadow: 0 6px 0 var(--mint-d); }
+.qtile--x { background: var(--ink3); color: var(--muted); box-shadow: 0 6px 0 var(--ink); }
+.qop { font-weight: 700; font-size: clamp(1.8rem, 8vw, 3.4rem); color: var(--muted); }
+
+/* Ko‘rgazmali yordam (nuqtalar) */
+.visual { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 0; padding: 4px 0; }
+.visual:empty { display: none; }
+.visual { --dot: 22px; --gap: 6px; }
+.visual .dot { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .25); flex: none; }
+.dotgrid { display: grid; grid-template-columns: repeat(var(--cols), var(--dot)); gap: var(--gap); max-width: 100%; }
+.dotgrid .dot { width: var(--dot); height: var(--dot); }
+@media (max-width: 520px) { .visual { --dot: 15px; --gap: 4px; gap: 5px; } .visual > .dot { width: 18px; height: 18px; } }
+.dot--red { background: var(--coral); } .dot--yellow { background: var(--sun); } .dot--white { background: var(--paper); }
+
+/* Javoblar */
+body.game .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border: 0; border-radius: 0; margin: 0; padding: 0; font-size: 1rem; }
+body.game .answer-btn {
+  display: flex; align-items: center; justify-content: center; min-height: clamp(76px, 14vh, 110px); padding: 8px;
+  border: 0; border-radius: 22px; cursor: pointer; color: var(--ink);
+  box-shadow: 0 7px 0 rgba(0, 0, 0, .3); font: 700 clamp(2rem, 8vw, 2.9rem) 'Fredoka', sans-serif;
+  transition: transform .08s, box-shadow .08s, filter .15s; touch-action: manipulation;
+}
+body.game .answer-btn:hover { filter: brightness(1.08); }
+body.game .answer-btn:active { transform: translateY(5px); box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+
+/* Klaviatura rejimi */
+body.game .input-display {
+  grid-column: 1 / -1; display: block; width: 100%; height: auto; margin: 0 auto 12px; max-width: 420px; min-height: 1.4em;
+  background: var(--ink); border: 3px solid var(--line); border-bottom-width: 7px; border-radius: 20px;
+  font: 700 clamp(2.2rem, 9vw, 3.4rem)/1.35 'Fredoka', sans-serif; color: var(--paper); text-align: center; padding: 0 12px;
+}
+body.game .input-display:empty::before { content: '?'; color: #4a4580; }
+body.game .keypad { grid-column: 1 / -1; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 420px; margin: 0 auto; }
+body.game .key {
+  padding: 0; height: clamp(48px, 8.5vh, 76px); border-radius: 18px; cursor: pointer; touch-action: manipulation; user-select: none;
+  background: var(--ink3); color: var(--paper); border: 3px solid var(--line); border-bottom-width: 6px;
+  font: 700 clamp(1.4rem, 5vw, 2rem) 'Fredoka', sans-serif; transition: transform .06s;
+}
+body.game .key:hover { border-color: var(--sky); }
+body.game .key:active { transform: translateY(3px); border-bottom-width: 3px; }
+body.game .key--del { background: var(--coral); border-color: var(--coral-d); color: #fff; }
+body.game .key--ok { background: var(--mint); border-color: var(--mint-d); color: var(--ink); }
+
+.ghint { display: none; margin: 0; text-align: center; color: var(--muted); font-size: .9rem; font-weight: 700; }
+@media (hover: hover) and (pointer: fine) { .ghint { display: block; } }
+
+.gquick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.gquick .btn-chunk { padding: 12px 8px; font-size: .96rem; font-weight: 800; }
+.gquick .btn-chunk--sky { background: var(--sky); --bd: var(--sky-d); }
+.gquick .btn-chunk--mint { background: var(--mint); --bd: var(--mint-d); }
+
+/* Boshqaruv tugmalari */
+.gctrl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gctrl .btn-chunk { padding: 12px 10px; font-size: 1.05rem; }
+.btn-chunk--ghost { color: var(--paper); }
+
+/* Bildirishnoma (toast) */
+body.game .toast {
+  bottom: auto; top: 14px; font: 700 1.15rem 'Fredoka', sans-serif; background: var(--ink2); color: var(--paper);
+  border: 3px solid var(--line); border-bottom-width: 6px; border-radius: 18px; padding: 8px 20px; z-index: 40; white-space: nowrap;
+}
+
+/* Yangi daraja e'loni */
+.levelup { position: fixed; inset: 0; display: none; place-items: start center; padding-top: 28vh; pointer-events: none; z-index: 50; }
+.levelup.show { display: grid; }
+.levelup__box {
+  display: flex; align-items: center; gap: 14px; background: var(--sun); color: var(--ink); border-radius: 30px;
+  box-shadow: 0 10px 0 var(--sun-d), 0 30px 60px rgba(0, 0, 0, .4); padding: 18px 34px;
+  font: 700 clamp(2rem, 9vw, 3.4rem) 'Fredoka', sans-serif; animation: lvl 1.5s ease-out forwards;
+}
+.levelup__ico { font-size: 1.2em; }
+@keyframes lvl { 0% { transform: scale(.4) rotate(-8deg); opacity: 0; } 18% { transform: scale(1.12) rotate(2deg); opacity: 1; } 30% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 90; background: rgba(20, 18, 43, .82); backdrop-filter: blur(4px); padding: 20px; }
+.overlay.is-active { display: flex; }
+.modal { width: min(460px, 100%); text-align: center; background: var(--ink2); border: 3px solid var(--line); border-bottom: 9px solid var(--sun-d); border-radius: 30px; padding: 26px 24px 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); animation: modalIn .28s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes modalIn { from { transform: translateY(24px) scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal__icon { margin-bottom: 10px; }
+.modal__icon .tile { font-size: 2.4rem; transform: rotate(-5deg); }
+.modal h2 { margin: 0 0 8px; font-size: 1.8rem; font-weight: 700; }
+.modal p { margin: 0 0 20px; color: var(--muted); }
+.modal__actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* Katta ekranlar */
+@media (min-width: 900px) {
+  .gwrap { width: min(820px, 100% - 48px); padding-top: 22px; }
+  .gcard { padding: 22px 26px; gap: 16px; }
+}
+@media (max-width: 520px) {
+  .gstats { width: 100%; }
+  .gstat { flex: 1; min-width: 0; padding: 4px 8px; }
+  .gmode { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal, .levelup__box, body.flash-bad .gcard { animation: none; }
+}

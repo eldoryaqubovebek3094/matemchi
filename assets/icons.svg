@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+
+  <!-- Restart -->
+  <symbol id="icon-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 4v6h6"/>
+    <path d="M4.93 4.93A10 10 0 1 1 3 12"/>
+  </symbol>
+
+  <!-- Check -->
+  <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 6L9 17l-5-5"/>
+  </symbol>
+
+  <!-- X (wrong) -->
+  <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M18 6L6 18M6 6l12 12"/>
+  </symbol>
+
+  <!-- Plus -->
+  <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 5v14M5 12h14"/>
+  </symbol>
+
+  <!-- Minus -->
+  <symbol id="icon-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M5 12h14"/>
+  </symbol>
+
+  <!-- Multiply -->
+  <symbol id="icon-multiply" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M6 6l12 12M18 6L6 18"/>
+  </symbol>
+
+  <!-- Divide -->
+  <symbol id="icon-divide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="6" r="2"/>
+    <path d="M5 12h14"/>
+    <circle cx="12" cy="18" r="2"/>
+  </symbol>
+
+  <!-- Star -->
+  <symbol id="icon-star" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.9 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
+  </symbol>
+
+  <!-- Trophy -->
+  <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M8 21h8M12 17v4"/>
+    <path d="M7 4h10v3a5 5 0 0 1-10 0V4z"/>
+    <path d="M5 7a3 3 0 0 0 3 3M19 7a3 3 0 0 1-3 3"/>
+  </symbol>
+
+  <!-- Home -->
+  <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 10l9-7 9 7"/>
+    <path d="M5 10v10h14V10"/>
+    <path d="M9 14h6v6H9z"/>
+  </symbol>
+
+  <!-- User -->
+  <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M4 20a8 8 0 0 1 16 0"/>
+  </symbol>
+
+  <!-- Question -->
+  <symbol id="icon-question" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 3-3 3"/>
+    <line x1="12" y1="17" x2="12" y2="17"/>
+  </symbol>
+
+</svg>

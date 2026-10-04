@@ -1,0 +1,349 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function hasRole(role) {
+      return signedIn() && (
+        request.auth.token.role == role ||
+        (
+          exists(/databases/$(database)/documents/user/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/user/$(request.auth.uid)).data.role == role
+        )
+      );
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.email == 'admin@burger.local' ||
+        hasRole('admin')
+      );
+    }
+
+    function isRestaurantStaff() {
+      return isAdmin() || hasRole('restaurant') || hasRole('restaurantOwner');
+    }
+
+    function isDriver() {
+      return isAdmin() || hasRole('driver');
+    }
+
+    function isRestaurantOwner(restaurantId) {
+      return isAdmin() || (
+        hasRole('restaurantOwner') &&
+        resource.data.ownerId == request.auth.uid
+      );
+    }
+
+    function orderExists(orderId) {
+      return exists(/databases/$(database)/documents/orders/$(orderId));
+    }
+
+    function orderFor(orderId) {
+      return get(/databases/$(database)/documents/orders/$(orderId)).data;
+    }
+
+    function canReadOrder(order) {
+      return signedIn() && (
+        order.userId == request.auth.uid ||
+        isRestaurantStaff() ||
+        isDriver()
+      );
+    }
+
+    function validDriverTransition() {
+      return isDriver() && (
+        (resource.data.status == 'READY' &&
+          request.resource.data.status in ['READY', 'DRIVERACCEPTED']) ||
+        (resource.data.status == 'DRIVERACCEPTED' &&
+          request.resource.data.status == 'DRIVERPICKEDUP') ||
+        (resource.data.status == 'DRIVERPICKEDUP' &&
+          request.resource.data.status == 'COMPLETE') ||
+        (resource.data.status == 'COMPLETE' &&
+          request.resource.data.status == 'COMPLETE')
+      );
+    }
+
+    function isRoomMember(room) {
+      return signedIn() && (
+        room.players.host.uid == request.auth.uid ||
+        (room.players.guest != null && room.players.guest.uid == request.auth.uid)
+      );
+    }
+
+    function isJoiningWaitingRoom() {
+      return signedIn() &&
+        resource.data.status == 'waiting' &&
+        resource.data.players.guest == null &&
+        request.resource.data.players.guest.uid != resource.data.players.host.uid &&
+        request.resource.data.players.host == resource.data.players.host &&
+        request.resource.data.players.guest.uid == request.auth.uid &&
+        request.resource.data.players.guest.ready == false &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players']);
+    }
+
+    function changesOnlyOwnSetup(role, otherRole) {
+      return resource.data.status == 'waiting' &&
+        request.auth.uid == resource.data.players[role].uid &&
+        request.resource.data.players[role].uid == resource.data.players[role].uid &&
+        request.resource.data.players[otherRole] == resource.data.players[otherRole] &&
+        request.resource.data.players[role].ready == true &&
+        request.resource.data.players[role].diff(resource.data.players[role])
+          .affectedKeys().hasOnly(['name', 'ready']);
+    }
+
+    function changesOnlyOwnProgress(role, otherRole) {
+      return (resource.data.status == 'playing' ||
+          (resource.data.status == 'countdown' &&
+            request.time.toMillis() >= resource.data.startedAt.toMillis() + 4500)) &&
+        request.auth.uid == resource.data.players[role].uid &&
+        request.resource.data.players[role].uid == resource.data.players[role].uid &&
+        request.resource.data.players[otherRole] == resource.data.players[otherRole] &&
+        request.resource.data.players[role].diff(resource.data.players[role])
+          .affectedKeys().hasOnly(['progress']);
+    }
+
+    function isOwnPlayerUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players']) && (
+        changesOnlyOwnSetup('host', 'guest') ||
+        changesOnlyOwnSetup('guest', 'host') ||
+        changesOnlyOwnProgress('host', 'guest') ||
+        changesOnlyOwnProgress('guest', 'host')
+      );
+    }
+
+    function isStartingCountdown() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['players', 'status', 'startedAt']) &&
+        resource.data.status == 'waiting' &&
+        request.resource.data.status == 'countdown' &&
+        request.resource.data.startedAt is timestamp &&
+        request.resource.data.startedAt == request.time &&
+        request.resource.data.players.host.ready == true &&
+        request.resource.data.players.guest.ready == true &&
+        (changesOnlyOwnSetup('host', 'guest') || changesOnlyOwnSetup('guest', 'host'));
+    }
+
+    function isGuestLeavingWaitingRoom() {
+      return signedIn() &&
+        resource.data.status == 'waiting' &&
+        resource.data.players.guest.uid == request.auth.uid &&
+        request.resource.data.players.guest == null &&
+        request.resource.data.players.host == resource.data.players.host &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players']);
+    }
+
+    function isStartingMatch() {
+      return isRoomMember(resource.data) &&
+        resource.data.status == 'countdown' &&
+        request.resource.data.status == 'playing' &&
+        request.time.toMillis() >= resource.data.startedAt.toMillis() + 4500 &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+    }
+
+    function isValidDuelResult(room) {
+      let hostScore = room.players.host.progress.correct;
+      let guestScore = room.players.guest.progress.correct;
+      let hostAverage = hostScore > 0
+        ? room.players.host.progress.timeSum / hostScore
+        : 0;
+      let guestAverage = guestScore > 0
+        ? room.players.guest.progress.timeSum / guestScore
+        : 0;
+      return request.resource.data.result.host.correct == hostScore &&
+        request.resource.data.result.host.wrong == room.players.host.progress.wrong &&
+        request.resource.data.result.host.timeSum == room.players.host.progress.timeSum &&
+        request.resource.data.result.guest.correct == guestScore &&
+        request.resource.data.result.guest.wrong == room.players.guest.progress.wrong &&
+        request.resource.data.result.guest.timeSum == room.players.guest.progress.timeSum &&
+        (
+          (hostScore > guestScore && request.resource.data.result.winner == 'host') ||
+          (guestScore > hostScore && request.resource.data.result.winner == 'guest') ||
+          (hostScore == guestScore && hostScore == 0 && request.resource.data.result.winner == 'draw') ||
+          (hostScore == guestScore && hostScore > 0 &&
+            hostAverage + 50 <= guestAverage && request.resource.data.result.winner == 'host') ||
+          (hostScore == guestScore && hostScore > 0 &&
+            guestAverage + 50 <= hostAverage && request.resource.data.result.winner == 'guest') ||
+          (hostScore == guestScore && hostScore > 0 &&
+            hostAverage + 50 > guestAverage && guestAverage + 50 > hostAverage &&
+            request.resource.data.result.winner == 'draw')
+        ) &&
+        request.resource.data.result.winnerName == (
+          request.resource.data.result.winner == 'host'
+            ? room.players.host.name
+            : request.resource.data.result.winner == 'guest'
+              ? room.players.guest.name
+              : 'Durang'
+        );
+    }
+
+    function isFinishingMatch() {
+      return isRoomMember(resource.data) &&
+        resource.data.status == 'playing' &&
+        resource.data.players.host.progress.finished == true &&
+        resource.data.players.guest.progress.finished == true &&
+        request.time.toMillis() >= resource.data.startedAt.toMillis() +
+          4500 + resource.data.config.duration * 1000 &&
+        request.resource.data.status == 'finished' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'result']) &&
+        isValidDuelResult(resource.data);
+    }
+
+    function historyMatchesFinishedRoom() {
+      let roomCode = request.resource.data.roomCode;
+      let roomPath = /databases/$(database)/documents/duelRooms/$(roomCode);
+      let room = get(roomPath).data;
+      return exists(roomPath) &&
+        room.status == 'finished' &&
+        isRoomMember(room) &&
+        request.resource.data.playerUids == [room.players.host.uid, room.players.guest.uid] &&
+        request.resource.data.result == room.result &&
+        request.resource.data.config == room.config;
+    }
+
+    // Customer profiles use the singular collection name used by the apps.
+    match /user/{userId} {
+      allow create: if isAdmin() || (isSelf(userId) &&
+        (!request.resource.data.keys().hasAny(['role']) ||
+          request.resource.data.role == 'customer' ||
+          (request.resource.data.role == 'admin' && request.auth.token.email == 'admin@burger.local')));
+      allow read: if isSelf(userId) || isRestaurantStaff() || isDriver();
+      allow update: if isAdmin() || (isSelf(userId) &&
+        request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin();
+    }
+
+    // Catalog data is visible to customers, but only staff can change it.
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow create: if isAdmin() || (hasRole('restaurantOwner') &&
+        request.resource.data.ownerId == request.auth.uid);
+      allow update, delete: if isRestaurantOwner(restaurantId);
+    }
+
+    match /dishes/{dishId} {
+      allow read: if true;
+      allow create: if isRestaurantStaff();
+      allow update, delete: if isAdmin() || isRestaurantStaff();
+    }
+
+    match /orders/{orderId} {
+      allow create: if signedIn() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.status == 'PENDING';
+
+      allow read: if canReadOrder(resource.data) ||
+        (isDriver() && resource.data.driverId == request.auth.uid);
+
+      // Restaurant staff may move an order through the kitchen workflow.
+      allow update: if isRestaurantStaff() &&
+        request.resource.data.restaurantId == resource.data.restaurantId;
+
+      // Drivers may only use the delivery status progression.
+      allow update: if validDriverTransition() &&
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.restaurantId == resource.data.restaurantId &&
+        request.resource.data.driverId == request.auth.uid;
+
+      allow update: if signedIn() && resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['paymentStatus', 'updatedAt']);
+
+      allow delete: if isAdmin();
+    }
+
+    match /orderDishes/{orderDishId} {
+      allow read: if signedIn() && orderExists(resource.data.orderId) &&
+        canReadOrder(orderFor(resource.data.orderId));
+
+      allow create: if signedIn() &&
+        request.resource.data.orderId is string &&
+        orderExists(request.resource.data.orderId) &&
+        orderFor(request.resource.data.orderId).userId == request.auth.uid;
+
+      allow update, delete: if isAdmin();
+    }
+
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create: if signedIn() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.score is number &&
+        request.resource.data.score >= 1 && request.resource.data.score <= 5 &&
+        orderExists(request.resource.data.orderId) &&
+        orderFor(request.resource.data.orderId).userId == request.auth.uid &&
+        orderFor(request.resource.data.orderId).status == 'COMPLETE';
+      allow update, delete: if isAdmin() ||
+        (signedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /payments/{paymentId} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid &&
+        orderExists(request.resource.data.orderId) &&
+        orderFor(request.resource.data.orderId).userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /earnings/{earningId} {
+      allow read: if isAdmin() ||
+        (signedIn() && resource.data.driverId == request.auth.uid);
+      allow create: if isDriver() &&
+        request.resource.data.driverId == request.auth.uid &&
+        request.resource.data.percent == 2 &&
+        request.resource.data.amount >= 0 &&
+        orderExists(request.resource.data.orderId) &&
+        orderFor(request.resource.data.orderId).status == 'COMPLETE';
+      allow update, delete: if isAdmin();
+    }
+
+    match /duelClocks/{userId} {
+      allow get: if isSelf(userId);
+      allow list: if false;
+      allow create, update: if isSelf(userId) &&
+        request.resource.data.keys().hasOnly(['serverTime']) &&
+        request.resource.data.serverTime is timestamp &&
+        request.resource.data.serverTime == request.time;
+      allow delete: if false;
+    }
+
+    match /duelRooms/{roomCode} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() &&
+        request.resource.data.players.host.uid == request.auth.uid &&
+        request.resource.data.players.guest == null &&
+        request.resource.data.status == 'waiting';
+      allow update: if isJoiningWaitingRoom() ||
+        isGuestLeavingWaitingRoom() ||
+        (isRoomMember(resource.data) && (isOwnPlayerUpdate() || isStartingCountdown())) ||
+        isStartingMatch() ||
+        isFinishingMatch();
+      allow delete: if (signedIn() &&
+          resource.data.players.host.uid == request.auth.uid &&
+          resource.data.status == 'waiting') ||
+        (isRoomMember(resource.data) && resource.data.status == 'finished');
+    }
+
+    match /duelHistory/{roomCode} {
+      allow get: if signedIn() && (
+        !exists(/databases/$(database)/documents/duelHistory/$(roomCode)) ||
+        request.auth.uid in resource.data.playerUids
+      );
+      allow list: if false;
+      allow create: if signedIn() && historyMatchesFinishedRoom();
+      allow update, delete: if false;
+    }
+
+    // Deny every collection that is not explicitly part of the application.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

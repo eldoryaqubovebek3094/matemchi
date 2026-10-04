@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Natijalar</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="home.css" />
+  <script>
+(function() {
+  // O‘ng tugma menyusini bloklash
+  document.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+  });
+
+  // Klaviatura kombinatsiyalarini bloklash
+  document.addEventListener("keydown", function(e) {
+    const key = e.key.toLowerCase();
+
+    // F12
+    if (key === "f12") e.preventDefault();
+
+    // Ctrl+Shift+I / J / C
+    if (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(key)) e.preventDefault();
+
+    // Ctrl+U (View Source)
+    if (e.ctrlKey && key === "u") e.preventDefault();
+  });
+
+  // Oddiy devtools aniqlash
+  (function devtoolsDetect() {
+    const element = new Image();
+    Object.defineProperty(element, 'id', {
+      get: function() {
+        alert("Developer Tools bloklangan!");
+      }
+    });
+    console.log(element);
+  })();
+
+  // Kodni chalkashtirish (obfuskatsiya) misoli
+  // Aslida bu kod oddiy, lekin chalkashtirilgan ko‘rinishda yoziladi
+  eval(function(p,a,c,k,e,d){
+    e=function(c){return c.toString(a)};
+    if(!''.replace(/^/,String)){
+      while(c--)d[e(c)]=k[c]||e(c);
+      k=[function(e){return d[e]}];
+      e=function(){return'\\w+'};
+      c=1;
+    }
+    while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);
+    return p;
+  }('2.1("3","4",5);',6,6,'|addEventListener|document|click|function|()=>alert("Bosildi!")'.split('|'),0,{}));
+})();
+</script>
+
+</head>
+<body class="page page--results home">
+  <div class="wrap">
+    <header class="header header--results">
+      <h1>
+        <svg class="icon" width="26" height="26"><use href="assets/icons.svg#icon-trophy"></use></svg>
+        Natijalar
+      </h1>
+      <p class="tagline">
+        <svg class="icon" width="18" height="18"><use href="assets/icons.svg#icon-check"></use></svg>
+        Javoblaringizni ko‘rib chiqing
+      </p>
+    </header>
+
+    <main class="container results-container">
+      <section class="card results-card">
+        <div id="summary" class="summary"></div>
+        <div id="list" class="result-list">
+          <!-- Misol uchun natija elementlari -->
+          <div class="result-item result-item--ok">
+            <svg class="icon" width="18" height="18"><use href="assets/icons.svg#icon-check"></use></svg>
+            7 × 1 = 7
+          </div>
+          <div class="result-item result-item--bad">
+            <svg class="icon icon--danger" width="18" height="18"><use href="assets/icons.svg#icon-x"></use></svg>
+            5 + 3 = 7 (to‘g‘ri javob: 8)
+          </div>
+        </div>
+        <div class="controls">
+          <a href="index.html" class="btn btn--ghost">
+            <svg class="icon" width="18" height="18"><use href="assets/icons.svg#icon-home"></use></svg>
+            Bosh sahifa
+          </a>
+          <a href="#" id="restartLink" class="btn btn--primary">
+            <svg class="icon" width="18" height="18"><use href="assets/icons.svg#icon-restart"></use></svg>
+            Qayta boshlash
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer footer-home">
+      <small>
+        <svg class="icon" width="16" height="16"><use href="assets/icons.svg#icon-star"></use></svg>
+        CHECKING RESULTS!
+      </small>
+    </footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="ui.js"></script>
+  <script>
+    const report = App.loadLastReport();
+    const summaryEl = document.getElementById('summary');
+    const listEl = document.getElementById('list');
+    const restartLink = document.getElementById('restartLink');
+
+    if (!report) {
+      summaryEl.innerHTML = '<p>Natijalar topilmadi.</p>';
+    } else {
+      summaryEl.innerHTML = UI.renderSummary(report);
+      listEl.innerHTML = UI.renderResultList(report);
+      restartLink.href = `game.html?mode=${report.mode}&style=${report.style}`;
+    }
+  </script>
+</body>
+</html>

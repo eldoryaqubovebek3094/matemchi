@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>O‘ynab o‘rgan — Matematika o‘yin orqali</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="home.css" />
+    <script>
+        (function () {
+            // O‘ng tugma menyusini bloklash
+            document.addEventListener("contextmenu", function (e) {
+                e.preventDefault();
+            });
+
+            // Klaviatura kombinatsiyalarini bloklash
+            document.addEventListener("keydown", function (e) {
+                const key = e.key.toLowerCase();
+
+                // F12
+                if (key === "f12") e.preventDefault();
+
+                // Ctrl+Shift+I / J / C
+                if (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(key)) e.preventDefault();
+
+                // Ctrl+U (View Source)
+                if (e.ctrlKey && key === "u") e.preventDefault();
+            });
+
+            // Oddiy devtools aniqlash
+            (function devtoolsDetect() {
+                const element = new Image();
+                Object.defineProperty(element, 'id', {
+                    get: function () {
+                        alert("Developer Tools bloklangan!");
+                    }
+                });
+                console.log(element);
+            })();
+
+        })();
+    </script>
+</head>
+
+<body class="page page--home home">
+    <div class="wrap">
+
+        <!-- Yuqori panel -->
+        <header class="topbar-home">
+            <a class="brand" href="index.html" aria-label="O‘ynab o‘rgan — bosh sahifa">
+                <span class="tile tile--sun">+</span>
+                <span class="brand__name">O‘ynab o‘rgan</span>
+            </a>
+            <a class="me" href="#profil" title="Profilga o‘tish">
+                <span class="avatar" id="meAvatar">M</span>
+                <span class="me__name" id="meName">Mehmon</span>
+            </a>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div>
+                <h1>O‘ynab<br />o‘rgan</h1>
+                <p class="hero__lead">Matematika — zerikarli emas! Sonlar bilan o‘ynang, ballar yig‘ing va darajadan darajaga ko‘tariling.</p>
+                <div class="hero__cta">
+                    <a class="btn-chunk" href="#rejimlar">Boshlash</a>
+                    <a class="btn-chunk btn-chunk--ghost" href="#profil">Mening natijam</a>
+                </div>
+            </div>
+
+            <div class="demo" id="demo" aria-live="polite">
+                <div class="deco deco--a"><span class="tile tile--coral">×</span></div>
+                <div class="deco deco--b"><span class="tile tile--sky">=</span></div>
+                <div class="demo__top">
+                    <span>Sinab ko‘ring!</span>
+                    <span class="demo__streak" id="demoStreak">🔥 0</span>
+                </div>
+                <div class="demo__q" id="demoQ"></div>
+                <div class="demo__opts" id="demoOpts"></div>
+                <p class="demo__hint">Bu mashq ball hisoblamaydi. Haqiqiy o‘yin pastda 👇</p>
+            </div>
+        </section>
+
+        <!-- Rejimlar -->
+        <section class="section" id="rejimlar">
+            <div class="section__head">
+                <h2>Rejimni tanlang</h2>
+                <p>Avval nima mashq qilamiz?</p>
+            </div>
+
+            <div class="modes">
+                <article class="mcard">
+                    <div class="mcard__tiles">
+                        <span class="tile tile--mint">+</span>
+                        <span class="tile tile--sky">−</span>
+                    </div>
+                    <h3>Qo‘shish va ayirish</h3>
+                    <p>Rangli nuqtalar yordamida sanab o‘rganing, keyin ularsiz ham yeching.</p>
+                    <div class="mcard__levels">
+                        <span class="pill">3 daraja</span>
+                        <span class="pill">50 gacha sonlar</span>
+                    </div>
+                    <div class="mcard__go">
+                        <a class="btn-chunk btn-chunk--mint" href="game.html?mode=addsub&style=choices">🎯 Variantlar bilan</a>
+                        <a class="btn-chunk btn-chunk--sky" href="game.html?mode=addsub&style=keypad">⌨️ Klaviatura bilan</a>
+                    </div>
+                </article>
+
+                <article class="mcard mcard--mult">
+                    <div class="mcard__tiles">
+                        <span class="tile tile--coral">×</span>
+                        <span class="tile tile--sun">÷</span>
+                    </div>
+                    <h3>Ko‘paytirish va bo‘lish</h3>
+                    <p>Ko‘paytirish jadvalini o‘yin bilan yodlang, bo‘lishni tez va aniq yeching.</p>
+                    <div class="mcard__levels">
+                        <span class="pill">3 daraja</span>
+                        <span class="pill">15 gacha jadval</span>
+                    </div>
+                    <div class="mcard__go">
+                        <a class="btn-chunk btn-chunk--coral" href="game.html?mode=multdiv&style=choices">🎯 Variantlar bilan</a>
+                        <a class="btn-chunk" href="game.html?mode=multdiv&style=keypad">⌨️ Klaviatura bilan</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Lokal bellashuv (planshet va katta ekranlar) -->
+        <section class="duel-banner" aria-label="Bellashuv rejimi">
+            <div>
+                <h2>Ikki o‘quvchi — bitta taymer!</h2>
+                <p>Sinfda yoki interaktiv doskada: ikkita doska, umumiy vaqt, kim ko‘p va kim tez yechsa — o‘sha g‘olib. G‘olibga salyut! 🎆</p>
+                <a class="btn-chunk" href="duel.html">⚔️ Bellashuvni boshlash</a>
+            </div>
+            <div class="duel-viz" aria-hidden="true">
+                <div class="duel-viz__side duel-viz__side--1"><small>1-o‘quvchi</small>12 × 4</div>
+                <div class="duel-viz__vs"><span>VS</span></div>
+                <div class="duel-viz__side duel-viz__side--2"><small>2-o‘quvchi</small>9 + 8</div>
+            </div>
+        </section>
+
+        <section class="duel-mobile-entry" aria-label="Do‘st bilan online bellashuv">
+            <div class="duel-mobile-entry__mark" aria-hidden="true">VS</div>
+            <div class="duel-mobile-entry__copy">
+                <h2>Do‘st bilan o‘ynash</h2>
+                <p>Xona kodini ulashing va telefonlaringizda bir vaqtda bellashing.</p>
+            </div>
+            <a class="btn-chunk btn-chunk--mint" href="duel.html">Do‘st bilan o‘ynash</a>
+        </section>
+
+        <!-- Profil -->
+        <section class="section" id="profil">
+            <div class="section__head">
+                <h2>Profil</h2>
+                <p>Ismingizni yozing, natijalaringiz shu yerda saqlanadi.</p>
+            </div>
+
+            <div class="profile">
+                <div class="panel">
+                    <h3>Kim o‘ynayapti?</h3>
+                    <form id="profileForm" class="pform">
+                        <div class="pform__row">
+                            <span class="avatar" id="formAvatar">M</span>
+                            <input type="text" id="playerName" maxlength="20" placeholder="Masalan: Ali" autocomplete="off" />
+                        </div>
+                        <button type="submit" class="btn-chunk btn-chunk--mint">✅ Saqlash</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h3>Natijalarim</h3>
+                    <div class="stats-grid" id="profileStats"></div>
+                    <p class="stats-note" id="statsNote"></p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-home">
+            © 2026 Yaqubov Eldor. Barcha huquqlar himoyalangan.
+        </footer>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        // ---------- Profil ----------
+        const nameInput = document.getElementById('playerName');
+        const form = document.getElementById('profileForm');
+        const initial = (n) => (n || 'M').trim().charAt(0).toUpperCase() || 'M';
+
+        function paintName(name) {
+            const n = name || 'Mehmon';
+            document.getElementById('meName').textContent = n;
+            document.getElementById('meAvatar').textContent = initial(n);
+            document.getElementById('formAvatar').textContent = initial(name || n);
+        }
+
+        function paintStats() {
+            const p = App.loadProfile();
+            const h = p.history || [];
+            const sessions = h.length;
+            const score = h.reduce((s, r) => s + (r.totalScore || 0), 0);
+            const best = h.reduce((b, r) => Math.max(b, r.accuracy || 0), 0);
+            const correct = h.reduce((s, r) => s + (r.correct || 0), 0);
+            const box = (cls, val, label) => {
+                const el = document.createElement('div');
+                el.className = 'stat ' + cls;
+                el.innerHTML = '<b></b><span></span>';
+                el.firstChild.textContent = val;
+                el.lastChild.textContent = label;
+                return el;
+            };
+            const grid = document.getElementById('profileStats');
+            grid.replaceChildren(
+                box('stat--1', sessions, 'O‘yinlar'),
+                box('stat--2', score, 'Jami ball'),
+                box('stat--3', Math.round(best * 100) + '%', 'Eng yaxshi aniqlik'),
+                box('stat--4', correct, 'To‘g‘ri javoblar')
+            );
+            document.getElementById('statsNote').textContent =
+                sessions ? '' : 'Hali o‘yin o‘ynalmagan — birinchi o‘yinni boshlang! 🚀';
+        }
+
+        const profile = App.loadProfile();
+        if (profile?.name && profile.name !== 'Mehmon') nameInput.value = profile.name;
+        paintName(profile?.name);
+        paintStats();
+
+        nameInput.addEventListener('input', () => {
+            document.getElementById('formAvatar').textContent = initial(nameInput.value);
+        });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = nameInput.value.trim() || 'Mehmon';
+            App.saveProfile({ ...App.loadProfile(), name });
+            paintName(name);
+            paintStats();
+            UI.toast('Profil saqlandi!');
+        });
+
+        // ---------- Hero mini-mashq ----------
+        (() => {
+            const qEl = document.getElementById('demoQ');
+            const optsEl = document.getElementById('demoOpts');
+            const streakEl = document.getElementById('demoStreak');
+            const tileColors = ['tile--sun', 'tile--mint', 'tile--sky', 'tile--grape', 'tile--coral'];
+            let streak = 0, locked = false;
+
+            const tile = (txt, cls) => {
+                const s = document.createElement('span');
+                s.className = 'tile ' + cls; s.textContent = txt; return s;
+            };
+            const rc = () => tileColors[Math.floor(Math.random() * tileColors.length)];
+
+            function next() {
+                locked = false;
+                const mode = Math.random() < 0.5 ? 'addsub' : 'multdiv';
+                const q = App.generateQuestion({ mode, level: 1, style: 'choices' });
+                const op = document.createElement('span');
+                op.className = 'op'; op.textContent = q.op;
+                const eq = document.createElement('span');
+                eq.className = 'op'; eq.textContent = '=';
+                qEl.replaceChildren(tile(q.a, rc()), op, tile(q.b, rc()), eq, tile('?', 'tile--ink'));
+                qEl.lastChild.style.cssText = 'background:#2a2658;color:#aaa4d8;box-shadow:0 6px 0 #14122b';
+                optsEl.replaceChildren(...q.choices.map((c) => {
+                    const b = document.createElement('button');
+                    b.type = 'button'; b.className = 'demo-opt'; b.textContent = c;
+                    b.addEventListener('click', () => {
+                        if (locked) return;
+                        if (c === q.answer) {
+                            locked = true; b.classList.add('ok'); streak++;
+                            streakEl.textContent = '🔥 ' + streak;
+                            setTimeout(next, 650);
+                        } else {
+                            b.classList.remove('bad'); void b.offsetWidth; b.classList.add('bad');
+                            streak = 0; streakEl.textContent = '🔥 0';
+                        }
+                    });
+                    return b;
+                }));
+            }
+            next();
+        })();
+    </script>
+</body>
+
+</html>

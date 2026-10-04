@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <title>Matematika platformasi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg:#f7fafc; --card:#ffffff; --border:#e2e8f0; --primary:#2563eb; --accent:#f59e0b; --text:#0f172a;
+      --good:#16a34a; --bad:#dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, Arial; background:var(--bg); color:var(--text); }
+    header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+    .logo { display:flex; align-items:center; gap:8px; font-weight:800; color:var(--primary); }
+    .container { max-width:1100px; margin:16px auto; padding:0 12px; display:grid; grid-template-columns: 260px 1fr 300px; gap:16px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .btn { background:var(--primary); color:#fff; border:none; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; }
+    .btn.secondary { background:#0ea5e9; }
+    .btn.ghost { background:#fff; color:var(--primary); border:1px solid var(--primary); }
+    .row { margin-bottom:10px; }
+    label { display:block; font-weight:600; margin-bottom:6px; }
+    input { width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; }
+    .badge { display:inline-flex; align-items:center; gap:6px; background:#fff7ed; color:#9a3412; border:1px dashed #fdba74; padding:6px 10px; border-radius:999px; font-weight:700; }
+    .stat { display:flex; gap:8px; flex-wrap:wrap; }
+    .stat .pill { background:#f1f5f9; border:1px solid var(--border); border-radius:999px; padding:6px 10px; }
+    .progress { height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+    .progress > div { height:100%; background:linear-gradient(90deg, var(--primary), var(--accent)); width:0%; transition:width .4s ease; }
+    .feedback { margin-top:8px; font-weight:700; }
+    .feedback.good { color:var(--good); }
+    .feedback.bad { color:var(--bad); }
+    .list { display:flex; flex-direction:column; gap:8px; }
+    .online-names { font-size:14px; color:#334155; }
+    @media (max-width: 980px) {
+      .container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <!-- SVG logo (oddiy) -->
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2"/><path d="M7 13h10M9 9h6" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Matematika</span>
+    </div>
+    <div id="authBar">
+      <span id="authState">Kirmagansiz</span>
+      <button class="btn ghost" id="logoutBtn">Chiqish</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Chap: Auth -->
+    <section class="card">
+      <h3>Ro‘yxatdan o‘tish</h3>
+      <div class="row">
+        <label>Ism (username)</label>
+        <input id="regUsername" type="text" placeholder="Masalan: Ali" />
+      </div>
+      <div class="row">
+        <label>Email</label>
+        <input id="regEmail" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="row">
+        <label>Parol</label>
+        <input id="regPassword" type="password" placeholder="••••••" />
+      </div>
+      <div class="row">
+        <label>Parolni tasdiqlash</label>
+        <input id="regPassword2" type="password" placeholder="••••••" />
+      </div>
+      <button class="btn" id="registerBtn">Ro‘yxatdan o‘tish</button>
+
+      <hr style="margin:16px 0; border:none; border-top:1px solid var(--border);" />
+
+      <h3>Kirish</h3>
+      <div class="row">
+        <label>Email</label>
+        <input id="logEmail" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="row">
+        <label>Parol</label>
+        <input id="logPassword" type="password" placeholder="••••••" />
+      </div>
+      <button class="btn secondary" id="loginBtn">Kirish</button>
+
+      <div id="authMsg" class="feedback"></div>
+    </section>
+
+    <!-- O‘rta: O‘yin -->
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h3>Matematika o‘yini</h3>
+        <span class="badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L6.5 20l2-7L3 9h7l2-7z" stroke="#f59e0b" stroke-width="1.5"/></svg> Badge’lar</span>
+      </div>
+      <div class="stat">
+        <div class="pill">Daraja: <b id="level">1</b></div>
+        <div class="pill">XP: <b id="xp">0</b></div>
+        <div class="pill">Combo: <b id="combo">0</b></div>
+      </div>
+      <div class="progress" style="margin-top:8px;"><div id="levelBar"></div></div>
+
+      <div id="question" style="margin-top:12px; font-size:18px; font-weight:700;">Savol yuklanmoqda...</div>
+      <div id="answers" class="list" style="margin-top:8px;"></div>
+      <div id="gameMsg" class="feedback"></div>
+    </section>
+
+    <!-- O‘ng: Online statistika -->
+    <section class="card">
+      <h3>Online statistika</h3>
+      <div><b>Oxirgi foydalanuvchi:</b> <span id="latestUser">—</span></div>
+      <div style="margin-top:8px;"><b>Hozir online:</b> <div id="whoOnline" class="online-names">—</div></div>
+      <div style="margin-top:8px;">
+        <b>Statistika:</b><br/>
+        <span style="color:var(--bad);">Staff: <b id="staffCount">0</b></span> |
+        Users: <b id="userCount">0</b> |
+        Guests: <b id="guestCount">0</b> |
+        Total: <b id="totalCount">0</b>
+      </div>
+      <div style="margin-top:8px;">
+        <b>Rekord:</b> <span id="recordTotal">0</span> — <span id="recordTime">—</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, addDoc, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const $ = (sel) => document.querySelector(sel);
+    const epochSeconds = () => Math.floor(Date.now()/1000);
+
+    // Auth UI
+    $("#registerBtn").addEventListener("click", async () => {
+      const username = $("#regUsername").value.trim();
+      const email = $("#regEmail").value.trim();
+      const pass = $("#regPassword").value;
+      const pass2 = $("#regPassword2").value;
+      const msg = $("#authMsg"); msg.textContent = ""; msg.className = "feedback";
+
+      if (!username || !email || !pass || !pass2) return (msg.textContent = "Iltimos, barcha maydonlarni to‘ldiring.");
+      if (pass !== pass2) return (msg.textContent = "Parollar mos kelmadi.");
+      if (pass.length < 6) return (msg.textContent = "Parol kamida 6 belgidan iborat bo‘lishi kerak.");
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await sendEmailVerification(cred.user);
+        await setDoc(doc(db, "users", cred.user.uid), {
+          uid: cred.user.uid, username, email, confirmed: false, role: "user", createdAt: serverTimestamp(), avatarUrl: ""
+        });
+        msg.textContent = "Ro‘yxatdan o‘tildi! Emailga tasdiqlash xabari yuborildi.";
+        msg.classList.add("good");
+      } catch (e) {
+        msg.textContent = "Xatolik: " + (e.message || e);
+        msg.classList.add("bad");
+      }
+    });
+
+    $("#loginBtn").addEventListener("click", async () => {
+      const email = $("#logEmail").value.trim();
+      const pass = $("#logPassword").value;
+      const msg = $("#authMsg"); msg.textContent = ""; msg.className = "feedback";
+
+      if (!email || !pass) return (msg.textContent = "Email va parolni kiriting.");
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        if (!cred.user.emailVerified) {
+          msg.textContent = "Email tasdiqlanmagan. Iltimos, emailni tasdiqlang.";
+          msg.classList.add("bad");
+          return;
+        }
+        await addDoc(collection(db, "sessions"), {
+          uid: cred.user.uid,
+          username: (await getDoc(doc(db, "users", cred.user.uid))).data()?.username || "",
+          class: 0, ip: "", time: epochSeconds()
+        });
+        msg.textContent = "Kirish muvaffaqiyatli!";
+        msg.classList.add("good");
+      } catch (e) {
+        msg.textContent = "Kirishda xatolik: " + (e.message || e);
+        msg.classList.add("bad");
+      }
+    });
+
+    $("#logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      $("#authState").textContent = "Kirmagansiz";
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user && user.emailVerified) {
+        $("#authState").textContent = `Kirdingiz: ${user.email}`;
+        // progress init
+        await ensureProgress(user.uid);
+        await refreshProgressUI(user.uid);
+        await loadQuestionFor(user.uid);
+      } else {
+        $("#authState").textContent = "Kirmagansiz";
+      }
+    });
+
+    // Progress
+    async function ensureProgress(uid) {
+      const ref = doc(db, "progress", uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, { uid, level:1, xp:0, badges:[], lastPlayedAt: serverTimestamp(), combo:0 });
+      }
+    }
+    async function getProgress(uid) {
+      const snap = await getDoc(doc(db, "progress", uid));
+      return snap.data();
+    }
+    async function refreshProgressUI(uid) {
+      const p = await getProgress(uid);
+      $("#level").textContent = p.level || 1;
+      $("#xp").textContent = p.xp || 0;
+      $("#combo").textContent = p.combo || 0;
+      const pct = Math.min(100, ((p.xp || 0) % 100)); // oddiy: har 100 XP — level up
+      $("#levelBar").style.width = pct + "%";
+    }
+
+    // Quizzes: simple selection by difficulty
+    async function pickQuizByLevel(level=1) {
+      const diff = level<=3 ? "easy" : level<=6 ? "medium" : "hard";
+      const qz = query(collection(db, "quizzes"), where("difficulty","==", diff), limit(1));
+      const snap = await getDocs(qz);
+      return snap.docs[0]?.data() || null;
+    }
+
+    async function loadQuestionFor(uid) {
+      const prog = await getProgress(uid);
+      const quiz = await pickQuizByLevel(prog.level || 1);
+      const qEl = $("#question"), aEl = $("#answers"), msg = $("#gameMsg");
+      msg.textContent = ""; msg.className = "feedback";
+      if (!quiz || !quiz.questions?.length) {
+        qEl.textContent = "Savollar topilmadi.";
+        aEl.innerHTML = "";
+        return;
+      }
+      const q = quiz.questions[0];
+      qEl.textContent = q.text;
+      aEl.innerHTML = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.style.width = "100%";
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(uid, q, opt);
+        aEl.appendChild(btn);
+      });
+    }
+
+    async function checkAnswer(uid, question, chosen) {
+      const correct = chosen === question.correct;
+      const ref = doc(db, "progress", uid);
+      const snap = await getDoc(ref);
+      const p = snap.data();
+      let xp = p.xp || 0, level = p.level || 1, combo = p.combo || 0;
+
+      if (correct) {
+        xp += 12; combo += 1;
+        if (xp >= 100) { xp = xp - 100; level += 1; }
+        $("#gameMsg").textContent = "To‘g‘ri! 🎉";
+        $("#gameMsg").className = "feedback good";
+      } else {
+        combo = 0;
+        $("#gameMsg").textContent = "Noto‘g‘ri. Qayta urinib ko‘ring.";
+        $("#gameMsg").className = "feedback bad";
+      }
+
+      await setDoc(ref, { xp, level, combo, lastPlayedAt: serverTimestamp() }, { merge: true });
+      await refreshProgressUI(uid);
+      setTimeout(() => loadQuestionFor(uid), 700);
+    }
+
+    // Online statistikasi
+    async function loadLatestUser() {
+      const q = query(collection(db, "users"), orderBy("createdAt","desc"), limit(1));
+      const snap = await getDocs(q);
+      $("#latestUser").textContent = snap.docs[0]?.data()?.username || "—";
+    }
+    async function loadOnline() {
+      const q = query(collection(db, "sessions"), where("time", ">", epochSeconds()-300));
+      const snap = await getDocs(q);
+      let staff=0, users=0, guests=0;
+      const names = [];
+      const guestIps = new Set();
+
+      snap.forEach(d => {
+        const s = d.data();
+        const uname = s.username || "";
+        const cls = s.class ?? 0;
+        const uid = s.uid ?? 0;
+        const ip = s.ip ?? "";
+
+        if (uname) names.push(uname);
+        if (cls >= 2) staff++;
+        else if (uid) users++;
+        else {
+          if (!guestIps.has(ip)) { guests++; guestIps.add(ip); }
+        }
+      });
+
+      const total = staff + users + guests;
+      $("#whoOnline").textContent = names.length ? names.join(", ") : "Oxirgi 10 daqiqada hech kim online emas.";
+      $("#staffCount").textContent = staff;
+      $("#userCount").textContent = users;
+      $("#guestCount").textContent = guests;
+      $("#totalCount").textContent = total;
+
+      const recRef = doc(db, "stats", "onlineRecord");
+      const recSnap = await getDoc(recRef);
+      const rec = recSnap.exists() ? recSnap.data() : { total: 0, time: serverTimestamp() };
+      if (total > (rec.total || 0)) {
+        await setDoc(recRef, { total, time: serverTimestamp() }, { merge: true });
+      }
+      const recSnap2 = await getDoc(recRef);
+      const rec2 = recSnap2.data();
+      $("#recordTotal").textContent = rec2.total || 0;
+      $("#recordTime").textContent = "Rekord vaqti yangilandi";
+    }
+
+    // Init periodic
+    loadLatestUser();
+    loadOnline();
+    setInterval(loadOnline, 15000);
+  </script>
+</body>
+</html>
