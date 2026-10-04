@@ -216,7 +216,7 @@
       onlineConfigSummaryEl.textContent = `${mode} · ${duration} · ${level}`;
     }
     if (readyRoomBtn) {
-      readyRoomBtn.textContent = own && own.ready ? 'Tayyorsiz' : 'Tayyorman';
+      readyRoomBtn.textContent = own && own.ready ? 'Kutayabman...' : 'Tayyorman';
     }
     syncActionButtons();
 
