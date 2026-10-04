@@ -173,8 +173,12 @@
     state.serverOffsetMs = samples[0].offset;
   }
 
-  function currentName() {
-    return state.role === 'host' ? '1-o‘yinchi' : '2-o‘yinchi';
+  function currentName(role = state.role) {
+    const fallback = role === 'host' ? '1-o‘yinchi' : '2-o‘yinchi';
+    const profile = window.App && window.App.loadProfile ? window.App.loadProfile() : null;
+    const profileName = profile && typeof profile.name === 'string' ? profile.name : '';
+    const name = safeName(profileName, '');
+    return !name || name === 'Mehmon' ? fallback : name;
   }
 
   function createMatchData() {
@@ -383,7 +387,7 @@
             config: match.config,
             questions: match.questions,
             players: {
-              host: { uid: auth.currentUser.uid, name: '1-o‘yinchi', ready: false, progress: { correct: 0, wrong: 0, streak: 0, idx: 0, timeSum: 0 } },
+              host: { uid: auth.currentUser.uid, name: currentName('host'), ready: false, progress: { correct: 0, wrong: 0, streak: 0, idx: 0, timeSum: 0 } },
               guest: null,
             },
           });
@@ -423,7 +427,7 @@
         const room = snapshot.data();
         if (room.status !== 'waiting' || room.players && room.players.guest || room.players.host.uid === auth.currentUser.uid) return false;
         transaction.update(roomRef, {
-          'players.guest': { uid: auth.currentUser.uid, name: '2-o‘yinchi', ready: false, progress: { correct: 0, wrong: 0, streak: 0, idx: 0, timeSum: 0 } },
+          'players.guest': { uid: auth.currentUser.uid, name: currentName('guest'), ready: false, progress: { correct: 0, wrong: 0, streak: 0, idx: 0, timeSum: 0 } },
         });
         return true;
       });
