@@ -360,6 +360,7 @@ kbd {
 
 body.online-room[data-online-role="host"] #board1,
 body.online-room[data-online-role="guest"] #board0 { display: none; }
+body.online-room[data-online-role="host"] .online-ready { display: none; }
 body.online-room .boards { grid-template-columns: minmax(0, 1fr); }
 body.online-room .divider { display: none; }
 body.online-room #pauseBtn { display: none; }
@@ -380,6 +381,7 @@ body.online-room #pauseBtn { display: none; }
 }
 
 @media (max-width: 767px) {
+  #soundBtn, .music-volume { display: none; }
   .setup__header-actions { gap: 7px; }
   .web-guide__trigger { display: none; }
   .setup__header-actions .setup__home-btn { margin-left: auto; }

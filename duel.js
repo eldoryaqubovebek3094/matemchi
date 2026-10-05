@@ -8,10 +8,12 @@
   const COLORS = ['#4cc3ff', '#ffa940'];
   const MAX_LEN = 4;
 
-  let settings = Object.assign({ mode: 'addsub', duration: 60, level: 'auto', sound: true, musicVolume: 0.15 }, load(KEYS.SETTINGS, {}));
-  if (settings.musicVolume === 0.5) settings.musicVolume = 0.15;
+  let settings = Object.assign({ mode: 'addsub', duration: 60, level: 'auto', sound: true, musicVolume: 0.1 }, load(KEYS.SETTINGS, {}));
+  if (settings.musicVolume === 0.5 || settings.musicVolume === 0.15) settings.musicVolume = 0.1;
   const savedMusicVolume = Number(settings.musicVolume);
-  settings.musicVolume = Number.isFinite(savedMusicVolume) ? Math.min(1, Math.max(0, savedMusicVolume)) : 0.15;
+  settings.musicVolume = Number.isFinite(savedMusicVolume) ? Math.min(1, Math.max(0, savedMusicVolume)) : 0.1;
+  const mobileAudioQuery = window.matchMedia('(max-width: 767px)');
+  const isMobileAudio = () => mobileAudioQuery.matches;
   let phase = 'setup'; // setup | countdown | playing | paused | finished
   let players = [];
   let qCache = [];
@@ -46,7 +48,7 @@
     music.pause();
     music.currentTime = 0;
     music.loop = settings.duration >= 60;
-    if (settings.musicVolume > 0) playMusic();
+    if (!isMobileAudio() && settings.musicVolume > 0) playMusic();
   }
   function stopMusic() {
     music.pause();
@@ -64,7 +66,7 @@
     return actx;
   }
   function beep(freq, dur = 0.12, type = 'sine', vol = 0.15, delay = 0) {
-    if (!settings.sound) return;
+    if (!isMobileAudio() && !settings.sound) return;
     const a = audio(); if (!a) return;
     const t = a.currentTime + delay;
     const o = a.createOscillator(), g = a.createGain();
@@ -73,7 +75,7 @@
     o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur);
   }
   function pop() {
-    if (!settings.sound) return;
+    if (!isMobileAudio() && !settings.sound) return;
     const a = audio(); if (!a) return;
     const len = a.sampleRate * 0.18, buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
@@ -81,7 +83,7 @@
     g.gain.value = 0.12; s.buffer = buf; s.connect(g); g.connect(a.destination); s.start();
   }
   function wow() {
-    if (!settings.sound) return;
+    if (!isMobileAudio() && !settings.sound) return;
     const a = audio(); if (!a) return;
     const start = a.currentTime + 0.12;
     [[440, 880, 0.075], [660, 1320, 0.035]].forEach(([from, to, volume], index) => {
@@ -101,7 +103,7 @@
     });
   }
   function applause() {
-    if (!settings.sound) return;
+    if (!isMobileAudio() && !settings.sound) return;
     applauseTrack.volume = 0.25;
     applauseTrack.currentTime = 0;
     const playback = applauseTrack.play();
@@ -121,8 +123,8 @@
       const elapsedSeconds = Math.max(0, Math.floor(total / 1000) - secondsLeft);
       const urgent = secondsLeft <= 10;
       beep(urgent ? [784, 880, 988, 880][elapsedSeconds % 4] : melody[elapsedSeconds % melody.length],
-        0.13, 'sine', urgent ? 0.1 : 0.06);
-      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.045, 0.12);
+        0.13, 'sine', urgent ? 0.28 : 0.22);
+      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.11, 0.12);
     },
     go: () => beep(1040, 0.35, 'triangle', 0.18),
     end: () => {
@@ -512,7 +514,7 @@
       elapsed = onlineMode ? Math.max(0, window.FirebaseDuel.serverNow() - onlineStartedAt) : elapsed + dt;
       if (elapsed >= total) { elapsed = total; renderTimer(); finish(); return; }
       const secondsLeft = Math.ceil((total - elapsed) / 1000);
-      if (!onlineMode && secondsLeft !== lastTimerBeat) {
+      if (secondsLeft !== lastTimerBeat) {
         lastTimerBeat = secondsLeft;
         sfx.timer(secondsLeft);
       }
@@ -523,7 +525,7 @@
   function togglePause() {
     if (onlineMode) return;
     if (phase === 'playing') { phase = 'paused'; music.pause(); $('pauseOverlay').classList.add('is-active'); }
-    else if (phase === 'paused') { phase = 'playing'; lastTick = performance.now(); $('pauseOverlay').classList.remove('is-active'); if (settings.musicVolume > 0) playMusic(); }
+    else if (phase === 'paused') { phase = 'playing'; lastTick = performance.now(); $('pauseOverlay').classList.remove('is-active'); if (!isMobileAudio() && settings.musicVolume > 0) playMusic(); }
   }
 
   function avgMs(p) { return p.correct ? p.timeSum / p.correct : null; }
@@ -645,7 +647,7 @@
     if (ok) {
       if (onlineMode && window.FirebaseDuel) {
         if (!await window.FirebaseDuel.leaveRoom()) {
-          if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (settings.musicVolume > 0) playMusic(); }
+          if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (!isMobileAudio() && settings.musicVolume > 0) playMusic(); }
           return;
         }
         onlineMode = false;
@@ -653,7 +655,7 @@
       }
       backToSetup();
     }
-    else if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (settings.musicVolume > 0) playMusic(); }
+    else if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (!isMobileAudio() && settings.musicVolume > 0) playMusic(); }
   });
   function syncSoundBtn() { $('soundBtn').textContent = settings.sound ? '🔊' : '🔇'; }
   $('soundBtn').addEventListener('click', (e) => {

@@ -171,7 +171,7 @@
         samples.push({ roundTrip: receivedAt - sentAt, offset: serverTime.toMillis() - (sentAt + receivedAt) / 2 });
       }
     }
-    if (!samples.length) throw new Error('Firebase server soatini aniqlab bo‘lmadi. Qayta urinib ko‘ring.');
+    if (!samples.length) throw new Error('Server soatini aniqlab bo‘lmadi. Qayta urinib ko‘ring.');
     samples.sort((a, b) => a.roundTrip - b.roundTrip);
     state.serverOffsetMs = samples[0].offset;
   }
@@ -229,7 +229,7 @@
       const waitingForOpponent = isReady && !opponentIsReady;
       readyRoomBtn.classList.toggle('is-waiting', waitingForOpponent);
       readyRoomBtn.textContent = !isReady
-        ? 'Tayyorman'
+        ? 'Tayyorman — o‘yinni boshlash'
         : opponentIsReady ? 'Ikkalangiz ham tayyorsiz!' : 'Siz tayyorsiz';
       readyRoomBtn.setAttribute(
         'aria-label',
@@ -239,7 +239,9 @@
     syncActionButtons();
 
     const statusText = {
-      waiting: state.role === 'host' ? 'Xona yaratildi. Kodni raqibga yuboring.' : 'Xonaga ulandingiz. Tayyor bo‘lgach boshlang.',
+      waiting: state.role === 'host'
+        ? 'Xona yaratildi. Siz tayyorsiz; raqib “Tayyorman”ni bosishi bilan o‘yin boshlanadi.'
+        : 'Xonaga ulandingiz. “Tayyorman”ni bossangiz o‘yin boshlanadi.',
       countdown: 'Ikkala o‘yinchi tayyor. Umumiy start sanalmoqda…',
       playing: 'Duel davom etmoqda. Ballar jonli yangilanadi.',
       finished: room.result && room.result.text || 'Duel yakunlandi.',
@@ -357,7 +359,7 @@
     }
     if (state.connectionPromise) return state.connectionPromise;
     const loadingToken = showLoader
-      ? showLoading('Aloqa tayyorlanmoqda', 'Firebase serveri tekshirilib, xavfsiz ulanish o‘rnatilyapti.', 'connect')
+      ? showLoading('Aloqa tayyorlanmoqda', 'Serveri tekshirilib, xavfsiz ulanish o‘rnatilyapti.', 'connect')
       : null;
     setStatus('Firebase hisobiga ulanmoqda…');
     const connection = (async () => {
@@ -405,7 +407,7 @@
             config: match.config,
             questions: match.questions,
             players: {
-              host: { uid: auth.currentUser.uid, name: currentName('host'), ready: false, progress: { correct: 0, wrong: 0, streak: 0, idx: 0, timeSum: 0 } },
+              host: { uid: auth.currentUser.uid, name: currentName('host'), ready: true, progress: { correct: 0, wrong: 0, streak: 0, idx: 0, timeSum: 0 } },
               guest: null,
             },
           });
@@ -451,7 +453,7 @@
       });
       if (!joined) return setStatus('Xona topilmadi, to‘la yoki o‘yin boshlangan.', true);
       enterRoom(code, 'guest', roomRef);
-      setStatus(`Xona ${code} ga qo‘shildingiz. Ikkala o‘yinchi tayyor bo‘lsin.`);
+      setStatus(`Xona ${code} ga qo‘shildingiz. “Tayyorman”ni bossangiz o‘yin boshlanadi.`);
     } catch (error) {
       setStatus(errorMessage(error, 'Xonaga qo‘shilish muvaffaqiyatsiz tugadi.'), true);
     } finally {
@@ -508,7 +510,7 @@
 
   async function setReady() {
     if (!state.roomRef || !state.role) return setStatus('Avval xona yarating yoki kod bilan qo‘shiling.', true);
-    const loadingToken = showLoading('Tayyorgarlik saqlanmoqda', 'Ikkinchi o‘yinchi tayyor bo‘lishi bilan umumiy countdown boshlanadi.', 'ready');
+    const loadingToken = showLoading('Tayyorgarlik saqlanmoqda', 'Tayyorligingiz saqlanib, umumiy countdown boshlanadi.', 'ready');
     try {
       await state.db.runTransaction(async (transaction) => {
         const snapshot = await transaction.get(state.roomRef);
@@ -758,6 +760,7 @@
   if (isMobile() && validInviteCode && !hasSavedRoom) {
     showMobileView('join');
     if (joinCodeInput) joinCodeInput.value = validInviteCode;
+    joinRoom();
   }
   restoreRoom();
   if (isMobile() && !hasSavedRoom) connectFirestore();

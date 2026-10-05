@@ -66,7 +66,7 @@
           </button>
           <div id="mobileRoomChoices" class="mobile-duel__choices">
             <h2>Do‘st bilan bellashuv</h2>
-            <p>Bir telefon xona yaratadi, ikkinchisi xona kodi bilan qo‘shiladi.</p>
+            <p>Bir telefon xona yaratadi, ikkinchi o‘yinchi taklif havolasi yoki xona kodi bilan qo‘shiladi.</p>
             <div class="mobile-duel__actions">
               <button id="showCreateRoomBtn" class="btn-chunk btn-chunk--sky" type="button">Room yaratish</button>
               <button id="showJoinRoomBtn" class="btn-chunk btn-chunk--mint" type="button">Roomga qo‘shilish</button>
@@ -111,7 +111,7 @@
             <h2>Xonaga qo‘shilish</h2>
             <label class="mobile-duel__label" for="joinRoomCodeInput">Do‘stingiz yuborgan xona kodi</label>
             <input id="joinRoomCodeInput" type="text" maxlength="8" placeholder="Masalan: A7K2M9Q4" autocomplete="off" />
-            <p class="mobile-duel__note">Ismingiz avtomatik ravishda “2-o‘yinchi” bo‘ladi. O‘yin sozlamalarini xona egasi tanlaydi.</p>
+            <p class="mobile-duel__note">Taklif havolasini ochsangiz, xonaga avtomatik kirasiz. O‘yin sozlamalarini xona egasi tanlaydi.</p>
             <button id="joinRoomBtn" class="btn-chunk btn-chunk--mint mobile-duel__submit" type="button">Xonaga qo‘shilish</button>
           </div>
 
@@ -122,13 +122,13 @@
               <div><span>Raqib</span><strong id="onlineOpponent">Kutilmoqda</strong></div>
               <div><span>Xona kodi</span><strong id="onlineRoomLabel">—</strong></div>
               <div><span>Hisob</span><strong><span id="onlineMyScore">0</span> : <span id="onlineOpponentScore">0</span></strong></div>
-              <div id="onlineReady">Tayyorgarlik kutilmoqda</div>
+              <div id="onlineReady">Raqib tayyorlanishi kutilmoqda</div>
             </div>
-            <button id="readyRoomBtn" class="btn-chunk btn-chunk--mint online-ready" type="button">Tayyorman</button>
+            <button id="readyRoomBtn" class="btn-chunk btn-chunk--mint online-ready" type="button">Tayyorman — o‘yinni boshlash</button>
             <button id="shareRoomBtn" class="btn-chunk btn-chunk--sky online-invite" type="button">🔗 Do‘stni havola bilan taklif qilish</button>
             <button id="leaveRoomBtn" class="link-btn online-leave" type="button">Xonadan chiqish</button>
           </div>
-          <p id="onlineStatus" class="online-status" role="status" aria-live="polite">Firebase serveri avtomatik tekshirilmoqda…</p>
+          <p id="onlineStatus" class="online-status" role="status" aria-live="polite">Server avtomatik tekshirilmoqda…</p>
           <div id="onlineLoading" class="online-loading" hidden role="status" aria-live="assertive" aria-busy="true">
             <div class="online-loading__panel">
               <div class="online-loading__signal" aria-hidden="true">
@@ -136,7 +136,7 @@
               </div>
               <p class="online-loading__eyebrow">DO‘ST BILAN BELLASHUV</p>
               <h2 id="onlineLoadingTitle">Ulanish tekshirilmoqda</h2>
-              <p id="onlineLoadingDetail">Firebase serveriga xavfsiz ulanish tayyorlanyapti.</p>
+              <p id="onlineLoadingDetail">Serverga xavfsiz ulanish tayyorlanyapti.</p>
               <div class="online-loading__track" aria-hidden="true"><span></span></div>
             </div>
           </div>
@@ -250,8 +250,8 @@
         <div class="gbar__side gbar__side--right">
           <label class="music-volume" for="musicVolume">
             <span aria-hidden="true">🎵</span>
-            <input id="musicVolume" type="range" min="0" max="100" step="1" value="15" aria-label="Musiqa ovozi" />
-            <output id="musicVolumeValue" for="musicVolume">15%</output>
+            <input id="musicVolume" type="range" min="0" max="100" step="1" value="10" aria-label="Musiqa ovozi" />
+            <output id="musicVolumeValue" for="musicVolume">10%</output>
           </label>
           <button id="exitBtn" class="btn-chunk btn-chunk--coral btn-sm" type="button">Chiqish</button>
         </div>
@@ -338,8 +338,8 @@
     <ol class="mobile-guide__steps">
       <li><span class="mobile-guide__step-icon" aria-hidden="true">📱</span><span><strong>Ismingizni saqlang</strong><small>Bosh sahifadagi Profil bo‘limida yozgan ismingiz duelda ko‘rinadi.</small></span></li>
       <li><span class="mobile-guide__step-icon" aria-hidden="true">🏠</span><span><strong>Xona yarating</strong><small>“Room yaratish”ni bosing, o‘yin sozlamalarini tanlang va chiqqan 8 belgili kodni do‘stingizga yuboring.</small></span></li>
-      <li><span class="mobile-guide__step-icon" aria-hidden="true">🔑</span><span><strong>Kod bilan qo‘shiling</strong><small>Do‘stingiz “Roomga qo‘shilish”ni bosib, siz yuborgan kodni kiritsin.</small></span></li>
-      <li><span class="mobile-guide__step-icon" aria-hidden="true">🚀</span><span><strong>Ikkalangiz ham tayyor bo‘ling</strong><small>Har ikkala telefonda “Tayyorman”ni bosing. Umumiy sanoqdan so‘ng duel boshlanadi.</small></span></li>
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">🔑</span><span><strong>Havola yoki kod bilan qo‘shiling</strong><small>Taklif havolasini ochsangiz xona avtomatik ochiladi; xohlasangiz kodni ham qo‘lda kiriting.</small></span></li>
+      <li><span class="mobile-guide__step-icon" aria-hidden="true">🚀</span><span><strong>Ikkinchi o‘yinchi boshlaydi</strong><small>Xona egasi avtomatik tayyor bo‘ladi. Ikkinchi o‘yinchi “Tayyorman”ni bosishi bilan umumiy sanoq boshlanadi.</small></span></li>
       <li><span class="mobile-guide__step-icon" aria-hidden="true">🌐</span><span><strong>Internet kerak</strong><small>Ikkala qurilmada internet bo‘lsin. Bir xil Wi‑Fi shart emas; sayt HTTPS manzilda ochilishi kerak.</small></span></li>
     </ol>
     <div class="mobile-guide__footer">
