@@ -196,6 +196,28 @@ service cloud.firestore {
         isValidDuelResult(resource.data);
     }
 
+    function isForfeitingMatch() {
+      let quitterRole = request.auth.uid == resource.data.players.host.uid
+        ? 'host'
+        : 'guest';
+      let winnerRole = quitterRole == 'host' ? 'guest' : 'host';
+      return isRoomMember(resource.data) &&
+        resource.data.status == 'playing' &&
+        resource.data.players.guest != null &&
+        request.resource.data.status == 'finished' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'result']) &&
+        request.resource.data.result.winner == winnerRole &&
+        request.resource.data.result.winnerName == resource.data.players[winnerRole].name &&
+        request.resource.data.result.host.name == resource.data.players.host.name &&
+        request.resource.data.result.host.correct == resource.data.players.host.progress.correct &&
+        request.resource.data.result.host.wrong == resource.data.players.host.progress.wrong &&
+        request.resource.data.result.host.timeSum == resource.data.players.host.progress.timeSum &&
+        request.resource.data.result.guest.name == resource.data.players.guest.name &&
+        request.resource.data.result.guest.correct == resource.data.players.guest.progress.correct &&
+        request.resource.data.result.guest.wrong == resource.data.players.guest.progress.wrong &&
+        request.resource.data.result.guest.timeSum == resource.data.players.guest.progress.timeSum;
+    }
+
     function historyMatchesFinishedRoom() {
       let roomCode = request.resource.data.roomCode;
       let roomPath = /databases/$(database)/documents/duelRooms/$(roomCode);
@@ -324,7 +346,8 @@ service cloud.firestore {
         isGuestLeavingWaitingRoom() ||
         (isRoomMember(resource.data) && (isOwnPlayerUpdate() || isStartingCountdown())) ||
         isStartingMatch() ||
-        isFinishingMatch();
+        isFinishingMatch() ||
+        isForfeitingMatch();
       allow delete: if (signedIn() &&
           resource.data.players.host.uid == request.auth.uid &&
           resource.data.status == 'waiting') ||

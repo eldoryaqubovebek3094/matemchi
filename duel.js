@@ -616,7 +616,7 @@
   $('startBtn').addEventListener('click', startMatch);
   $('againBtn').addEventListener('click', async () => {
     if (onlineMode && window.FirebaseDuel) {
-      await window.FirebaseDuel.leaveRoom();
+      if (!await window.FirebaseDuel.leaveRoom()) return;
       onlineMode = false;
       onlineQuestions = null;
       backToSetup();
@@ -624,9 +624,9 @@
     }
     startMatch();
   });
-  $('settingsBtn').addEventListener('click', () => {
+  $('settingsBtn').addEventListener('click', async () => {
     if (onlineMode && window.FirebaseDuel) {
-      window.FirebaseDuel.leaveRoom();
+      if (!await window.FirebaseDuel.leaveRoom()) return;
       onlineMode = false;
       onlineQuestions = null;
     }
@@ -638,10 +638,16 @@
     e.currentTarget.blur();
     const wasPlaying = phase === 'playing';
     if (wasPlaying) { phase = 'paused'; music.pause(); }
-    const ok = await confirmBox({ icon: '🚪', title: 'Bellashuvdan chiqamizmi?', text: 'Natija saqlanmaydi va o‘yin to‘xtatiladi.', yes: 'Ha, chiqish', no: 'Davom etish' });
+    const exitText = onlineMode && wasPlaying
+      ? 'Chiqsangiz taslim bo‘lgan hisoblanasiz va raqib g‘olib deb belgilanadi.'
+      : 'Natija saqlanmaydi va o‘yin to‘xtatiladi.';
+    const ok = await confirmBox({ icon: '🚪', title: 'Bellashuvdan chiqamizmi?', text: exitText, yes: 'Ha, chiqish', no: 'Davom etish' });
     if (ok) {
       if (onlineMode && window.FirebaseDuel) {
-        window.FirebaseDuel.leaveRoom();
+        if (!await window.FirebaseDuel.leaveRoom()) {
+          if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (settings.musicVolume > 0) playMusic(); }
+          return;
+        }
         onlineMode = false;
         onlineQuestions = null;
       }

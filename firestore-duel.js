@@ -624,6 +624,33 @@
       });
   }
 
+  function forfeitRoom(transaction, roomRef, room, role) {
+    if (room.status !== 'playing' || !room.players || !room.players.host || !room.players.guest) return false;
+    const winnerRole = role === 'host' ? 'guest' : 'host';
+    const progressFor = (player) => ({
+      correct: Number(player.progress && player.progress.correct) || 0,
+      wrong: Number(player.progress && player.progress.wrong) || 0,
+      streak: Number(player.progress && player.progress.streak) || 0,
+      idx: Number(player.progress && player.progress.idx) || 0,
+      timeSum: Number(player.progress && player.progress.timeSum) || 0,
+      finished: Boolean(player.progress && player.progress.finished),
+    });
+    const host = { name: room.players.host.name, ...progressFor(room.players.host) };
+    const guest = { name: room.players.guest.name, ...progressFor(room.players.guest) };
+    const winnerName = room.players[winnerRole].name;
+    const result = {
+      winner: winnerRole,
+      winnerName,
+      reason: 'Raqib taslim bo‘ldi',
+      text: `${winnerName} raqibi taslim bo‘lgani uchun g‘olib bo‘ldi!`,
+      host,
+      guest,
+      finishedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    transaction.update(roomRef, { status: 'finished', result });
+    return true;
+  }
+
   async function leaveRoom() {
     const roomRef = state.roomRef;
     const role = state.role;
@@ -631,7 +658,21 @@
     if (roomRef && role) {
       try {
         const snapshot = await roomRef.get({ source: 'server' });
-        if (snapshot.exists && snapshot.data().status === 'finished') {
+        const room = snapshot.exists ? snapshot.data() : null;
+        if (room && room.status === 'playing') {
+          const forfeited = await state.db.runTransaction(async (transaction) => {
+            const current = await transaction.get(roomRef);
+            if (!current.exists) return false;
+            const currentRoom = current.data();
+            if (currentRoom.status !== 'playing') return false;
+            if (!state.auth || !state.auth.currentUser || !currentRoom.players || !currentRoom.players[role] ||
+                currentRoom.players[role].uid !== state.auth.currentUser.uid) {
+              throw new Error('Siz ushbu duel xonasining o‘yinchisi emassiz.');
+            }
+            return forfeitRoom(transaction, roomRef, currentRoom, role);
+          });
+          if (forfeited) setStatus('Siz taslim bo‘ldingiz. Raqib g‘olib deb belgilandi.');
+        } else if (room && room.status === 'finished') {
           const room = snapshot.data();
           if (await saveRoomHistory(room, roomCode)) {
             const historyRef = state.db.collection('duelHistory').doc(`${roomCode}_${timestampMs(room.startedAt)}`);
@@ -644,7 +685,7 @@
               }
             });
           }
-        } else {
+        } else if (room && room.status === 'waiting') {
           await state.db.runTransaction(async (transaction) => {
             const current = await transaction.get(roomRef);
             if (!current.exists || current.data().status !== 'waiting') return;
@@ -652,7 +693,10 @@
             else transaction.update(roomRef, { 'players.guest': null });
           });
         }
-      } catch { /* The local session can still be cleared if the room is already unavailable. */ }
+      } catch (error) {
+        setStatus(errorMessage(error, 'Xonadan chiqishda xatolik. Taslim bo‘lish saqlanmadi.'), true);
+        return false;
+      }
     }
     detachRoomListener();
     state.roomCode = '';
@@ -665,6 +709,7 @@
     if (onlineRoomLabelEl) onlineRoomLabelEl.textContent = '—';
     showMobileView('choices');
     setStatus('Xonadan chiqdingiz. Yangi duel boshlash mumkin.');
+    return true;
   }
 
   async function restoreRoom() {
