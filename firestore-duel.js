@@ -473,23 +473,47 @@
       text: 'Duelga qo‘shilish uchun ushbu havolani oching:',
       url: inviteUrl.toString(),
     };
-    try {
-      if (navigator.share) {
+    if (navigator.share) {
+      try {
         await navigator.share(shareData);
         setStatus('Taklif havolasi ulashildi.');
         return;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          setStatus('Havolani ulashish bekor qilindi.');
+          return;
+        }
+        console.warn('Duel taklifini ulashish amalga oshmadi; havola nusxalanadi.', error);
       }
+    }
+    try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(shareData.url);
         setStatus('Taklif havolasi nusxalandi. Do‘stingizga yuboring.');
         return;
       }
-      setStatus('Bu qurilmada havolani ulashish yoki nusxalash qo‘llab-quvvatlanmaydi.', true);
     } catch (error) {
-      if (error.name === 'AbortError') return;
-      console.error('Duel taklif havolasini ulashib bo‘lmadi.', error);
-      setStatus('Havolani ulashib bo‘lmadi. Qayta urinib ko‘ring.', true);
+      console.warn('Clipboard API orqali duel havolasini nusxalab bo‘lmadi.', error);
     }
+    const input = document.createElement('textarea');
+    try {
+      input.value = shareData.url;
+      input.setAttribute('readonly', '');
+      input.style.position = 'fixed';
+      input.style.opacity = '0';
+      document.body.appendChild(input);
+      input.select();
+      const copied = document.execCommand('copy');
+      if (copied) {
+        setStatus('Taklif havolasi nusxalandi. Do‘stingizga yuboring.');
+        return;
+      }
+    } catch (error) {
+      console.error('Duel taklif havolasini nusxalab bo‘lmadi.', error);
+    } finally {
+      input.remove();
+    }
+    setStatus('Ulashish ishlamadi. Sahifani HTTPS manzilda ochib, qayta urinib ko‘ring.', true);
   }
 
   function enterRoom(code, role, roomRef) {

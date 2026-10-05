@@ -66,7 +66,7 @@
     return actx;
   }
   function beep(freq, dur = 0.12, type = 'sine', vol = 0.15, delay = 0) {
-    if (!isMobileAudio() && !settings.sound) return;
+    if (!settings.sound) return;
     const a = audio(); if (!a) return;
     const t = a.currentTime + delay;
     const o = a.createOscillator(), g = a.createGain();
@@ -75,7 +75,7 @@
     o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur);
   }
   function pop() {
-    if (!isMobileAudio() && !settings.sound) return;
+    if (!settings.sound) return;
     const a = audio(); if (!a) return;
     const len = a.sampleRate * 0.18, buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
@@ -83,7 +83,7 @@
     g.gain.value = 0.12; s.buffer = buf; s.connect(g); g.connect(a.destination); s.start();
   }
   function wow() {
-    if (!isMobileAudio() && !settings.sound) return;
+    if (!settings.sound) return;
     const a = audio(); if (!a) return;
     const start = a.currentTime + 0.12;
     [[440, 880, 0.075], [660, 1320, 0.035]].forEach(([from, to, volume], index) => {
@@ -103,7 +103,7 @@
     });
   }
   function applause() {
-    if (!isMobileAudio() && !settings.sound) return;
+    if (!settings.sound) return;
     applauseTrack.volume = 0.25;
     applauseTrack.currentTime = 0;
     const playback = applauseTrack.play();
@@ -122,9 +122,10 @@
       const melody = [523, 659, 587, 784, 659, 587, 523, 698];
       const elapsedSeconds = Math.max(0, Math.floor(total / 1000) - secondsLeft);
       const urgent = secondsLeft <= 10;
+      const volumeScale = isMobileAudio() ? 0.8 : 1;
       beep(urgent ? [784, 880, 988, 880][elapsedSeconds % 4] : melody[elapsedSeconds % melody.length],
-        0.13, 'sine', urgent ? 0.28 : 0.22);
-      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.11, 0.12);
+        0.13, 'sine', (urgent ? 0.28 : 0.22) * volumeScale);
+      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.11 * volumeScale, 0.12);
     },
     go: () => beep(1040, 0.35, 'triangle', 0.18),
     end: () => {
@@ -657,7 +658,12 @@
     }
     else if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (!isMobileAudio() && settings.musicVolume > 0) playMusic(); }
   });
-  function syncSoundBtn() { $('soundBtn').textContent = settings.sound ? '🔊' : '🔇'; }
+  function syncSoundBtn() {
+    $('soundBtn').textContent = settings.sound ? '🔊' : '🔇';
+    $('soundBtn').setAttribute('aria-label', settings.sound ? 'Ovozni o‘chirish' : 'Ovozni yoqish');
+    $('soundBtn').setAttribute('aria-pressed', String(settings.sound));
+  }
+  syncSoundBtn();
   $('soundBtn').addEventListener('click', (e) => {
     settings.sound = !settings.sound;
     if (!settings.sound) {

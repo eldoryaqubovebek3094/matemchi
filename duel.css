@@ -381,7 +381,7 @@ body.online-room #pauseBtn { display: none; }
 }
 
 @media (max-width: 767px) {
-  #soundBtn, .music-volume { display: none; }
+  .music-volume { display: none; }
   .setup__header-actions { gap: 7px; }
   .web-guide__trigger { display: none; }
   .setup__header-actions .setup__home-btn { margin-left: auto; }
