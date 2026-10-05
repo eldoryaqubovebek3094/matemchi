@@ -8,7 +8,10 @@
   const COLORS = ['#4cc3ff', '#ffa940'];
   const MAX_LEN = 4;
 
-  let settings = Object.assign({ mode: 'addsub', duration: 60, level: 'auto', sound: true }, load(KEYS.SETTINGS, {}));
+  let settings = Object.assign({ mode: 'addsub', duration: 60, level: 'auto', sound: true, musicVolume: 0.15 }, load(KEYS.SETTINGS, {}));
+  if (settings.musicVolume === 0.5) settings.musicVolume = 0.15;
+  const savedMusicVolume = Number(settings.musicVolume);
+  settings.musicVolume = Number.isFinite(savedMusicVolume) ? Math.min(1, Math.max(0, savedMusicVolume)) : 0.15;
   let phase = 'setup'; // setup | countdown | playing | paused | finished
   let players = [];
   let qCache = [];
@@ -27,6 +30,34 @@
 
   /* ================= Ovoz ================= */
   let actx = null;
+  const music = $('backgroundMusic');
+  const applauseTrack = $('applauseTrack');
+  function playMusic() {
+    music.volume = settings.musicVolume;
+    const playback = music.play();
+    if (playback && typeof playback.catch === 'function') {
+      playback.catch((error) => {
+        if (error.name === 'NotAllowedError') console.warn('Brauzer duel musiqasini ijro etishga ruxsat bermadi.', error);
+        else console.error('Duel musiqasini ijro etib bo‘lmadi.', error);
+      });
+    }
+  }
+  function startMusic() {
+    music.pause();
+    music.currentTime = 0;
+    music.loop = settings.duration >= 60;
+    if (settings.musicVolume > 0) playMusic();
+  }
+  function stopMusic() {
+    music.pause();
+    music.currentTime = 0;
+  }
+  function syncMusicVolume() {
+    const percentage = Math.round(settings.musicVolume * 100);
+    $('musicVolume').value = String(percentage);
+    $('musicVolumeValue').textContent = `${percentage}%`;
+    music.volume = settings.musicVolume;
+  }
   function audio() {
     if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch { /* ignore */ } }
     if (actx && actx.state === 'suspended') actx.resume();
@@ -53,39 +84,32 @@
     if (!settings.sound) return;
     const a = audio(); if (!a) return;
     const start = a.currentTime + 0.12;
-    [[330, 520, 0.1], [495, 780, 0.035]].forEach(([from, to, volume]) => {
+    [[440, 880, 0.075], [660, 1320, 0.035]].forEach(([from, to, volume], index) => {
       const o = a.createOscillator(), g = a.createGain(), filter = a.createBiquadFilter();
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(from, start);
-      o.frequency.exponentialRampToValueAtTime(to, start + 0.32);
-      o.frequency.exponentialRampToValueAtTime(from * 1.18, start + 0.9);
-      filter.type = 'lowpass'; filter.frequency.value = 1800;
-      g.gain.setValueAtTime(0.0001, start);
-      g.gain.exponentialRampToValueAtTime(volume, start + 0.12);
-      g.gain.setValueAtTime(volume, start + 0.48);
-      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.95);
+      const noteStart = start + index * 0.12;
+      o.type = 'sine';
+      o.frequency.setValueAtTime(from, noteStart);
+      o.frequency.exponentialRampToValueAtTime(to, noteStart + 0.42);
+      o.frequency.exponentialRampToValueAtTime(to * 0.9, noteStart + 0.78);
+      filter.type = 'lowpass'; filter.frequency.value = 2400;
+      g.gain.setValueAtTime(0.0001, noteStart);
+      g.gain.exponentialRampToValueAtTime(volume, noteStart + 0.08);
+      g.gain.setValueAtTime(volume, noteStart + 0.42);
+      g.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.8);
       o.connect(filter); filter.connect(g); g.connect(a.destination);
-      o.start(start); o.stop(start + 0.96);
+      o.start(noteStart); o.stop(noteStart + 0.81);
     });
   }
   function applause() {
     if (!settings.sound) return;
-    const a = audio(); if (!a) return;
-    const length = Math.floor(a.sampleRate * 0.055);
-    const buffer = a.createBuffer(1, length, a.sampleRate);
-    const samples = buffer.getChannelData(0);
-    for (let i = 0; i < length; i++) samples[i] = Math.random() * 2 - 1;
-
-    for (let i = 0; i < 24; i++) {
-      const start = a.currentTime + 0.25 + i * 0.055 + Math.random() * 0.035;
-      const source = a.createBufferSource(), filter = a.createBiquadFilter(), gain = a.createGain();
-      source.buffer = buffer;
-      filter.type = 'bandpass'; filter.frequency.value = 1500 + Math.random() * 1800; filter.Q.value = 0.7;
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.025 + Math.random() * 0.035, start + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.052);
-      source.connect(filter); filter.connect(gain); gain.connect(a.destination);
-      source.start(start); source.stop(start + 0.055);
+    applauseTrack.volume = 0.25;
+    applauseTrack.currentTime = 0;
+    const playback = applauseTrack.play();
+    if (playback && typeof playback.catch === 'function') {
+      playback.catch((error) => {
+        if (error.name === 'NotAllowedError') console.warn('Brauzer karsaklar ovozini ijro etishga ruxsat bermadi.', error);
+        else console.error('Karsaklar ovozini ijro etib bo‘lmadi.', error);
+      });
     }
   }
   const sfx = {
@@ -97,12 +121,14 @@
       const elapsedSeconds = Math.max(0, Math.floor(total / 1000) - secondsLeft);
       const urgent = secondsLeft <= 10;
       beep(urgent ? [784, 880, 988, 880][elapsedSeconds % 4] : melody[elapsedSeconds % melody.length],
-        0.13, 'sine', urgent ? 0.055 : 0.032);
-      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.025, 0.12);
+        0.13, 'sine', urgent ? 0.1 : 0.06);
+      if (secondsLeft > 0 && secondsLeft <= 5) beep(1046, 0.08, 'triangle', 0.045, 0.12);
     },
     go: () => beep(1040, 0.35, 'triangle', 0.18),
     end: () => {
-      [523, 659, 784, 1046].forEach((f, i) => beep(f, 0.25, 'triangle', 0.15, i * 0.14));
+      [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) =>
+        beep(f, i > 3 ? 0.18 : 0.24, 'triangle', i === 6 ? 0.17 : 0.13, [0, 0.12, 0.24, 0.42, 0.62, 0.76, 0.9][i]));
+      [523, 659, 784, 1047].forEach((f) => beep(f, 0.72, 'sine', 0.055, 1.08));
       wow();
       applause();
     },
@@ -316,6 +342,7 @@
         overlay.classList.remove('is-active');
         phase = 'playing';
         setCtl(true);
+        startMusic();
         startTicker();
         window.FirebaseDuel.markPlaying();
         sfx.go();
@@ -468,7 +495,7 @@
     steps.forEach((s, k) => later(() => {
       txt.textContent = s; txt.dataset.step = k; txt.style.animation = 'none'; void txt.offsetWidth; txt.style.animation = '';
       (k < 3 ? sfx.tick : sfx.go)();
-      if (k === 3) { phase = 'playing'; setCtl(true); startTicker(); }
+      if (k === 3) { phase = 'playing'; setCtl(true); startMusic(); startTicker(); }
     }, k * 900));
     later(() => ov.classList.remove('is-active'), 3 * 900 + 600);
   }
@@ -495,8 +522,8 @@
 
   function togglePause() {
     if (onlineMode) return;
-    if (phase === 'playing') { phase = 'paused'; $('pauseOverlay').classList.add('is-active'); }
-    else if (phase === 'paused') { phase = 'playing'; lastTick = performance.now(); $('pauseOverlay').classList.remove('is-active'); }
+    if (phase === 'playing') { phase = 'paused'; music.pause(); $('pauseOverlay').classList.add('is-active'); }
+    else if (phase === 'paused') { phase = 'playing'; lastTick = performance.now(); $('pauseOverlay').classList.remove('is-active'); if (settings.musicVolume > 0) playMusic(); }
   }
 
   function avgMs(p) { return p.correct ? p.timeSum / p.correct : null; }
@@ -513,6 +540,7 @@
   function finish() {
     if (phase === 'finished' || phase === 'awaiting-result') return;
     clearInterval(tickId); clearLater();
+    stopMusic();
     if (onlineMode) {
       phase = 'awaiting-result';
       window.FirebaseDuel.finishMatch(onlineProgress(players[window.FirebaseDuel.getPlayerIndex()]));
@@ -527,6 +555,7 @@
     if (resultShown) return;
     resultShown = true;
     phase = 'finished'; clearInterval(tickId); clearInterval(onlineCountdownId); clearLater();
+    stopMusic();
     const [a, b] = players;
     const snap = (p) => ({ name: p.name, correct: p.correct, wrong: p.wrong, avg: avgMs(p) });
     const log = getLog();
@@ -566,6 +595,7 @@
 
   function backToSetup() {
     clearLater(); clearInterval(tickId); Fx.stop();
+    stopMusic();
     clearInterval(onlineCountdownId);
     phase = 'setup'; renderRank(); show('setup');
   }
@@ -606,7 +636,8 @@
   $('resumeBtn').addEventListener('click', (e) => { togglePause(); e.currentTarget.blur(); });
   $('exitBtn').addEventListener('click', async (e) => {
     e.currentTarget.blur();
-    const wasPlaying = phase === 'playing'; if (wasPlaying) phase = 'paused';
+    const wasPlaying = phase === 'playing';
+    if (wasPlaying) { phase = 'paused'; music.pause(); }
     const ok = await confirmBox({ icon: '🚪', title: 'Bellashuvdan chiqamizmi?', text: 'Natija saqlanmaydi va o‘yin to‘xtatiladi.', yes: 'Ha, chiqish', no: 'Davom etish' });
     if (ok) {
       if (onlineMode && window.FirebaseDuel) {
@@ -616,12 +647,27 @@
       }
       backToSetup();
     }
-    else if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); }
+    else if (wasPlaying) { phase = 'playing'; lastTick = performance.now(); if (settings.musicVolume > 0) playMusic(); }
   });
   function syncSoundBtn() { $('soundBtn').textContent = settings.sound ? '🔊' : '🔇'; }
   $('soundBtn').addEventListener('click', (e) => {
-    settings.sound = !settings.sound; save(KEYS.SETTINGS, settings); syncSoundBtn(); e.currentTarget.blur();
+    settings.sound = !settings.sound;
+    if (!settings.sound) {
+      applauseTrack.pause();
+      applauseTrack.currentTime = 0;
+    }
+    save(KEYS.SETTINGS, settings); syncSoundBtn(); e.currentTarget.blur();
   });
+  $('musicVolume').addEventListener('input', (e) => {
+    settings.musicVolume = Number(e.currentTarget.value) / 100;
+    save(KEYS.SETTINGS, settings);
+    syncMusicVolume();
+    if (phase === 'playing') {
+      if (settings.musicVolume === 0) music.pause();
+      else if (music.paused) playMusic();
+    }
+  });
+  syncMusicVolume();
 
   /* ================= Klaviatura =================
      1-o‘quvchi: yuqori qator raqamlari, Backspace, Enter

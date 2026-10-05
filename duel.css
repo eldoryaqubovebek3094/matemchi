@@ -58,6 +58,8 @@ body.duel {
 }
 .online-leave { display: none; margin: 8px auto 0; }
 body.online-room .online-leave { display: block; }
+.online-invite { display: none; width: 100%; min-height: 48px; margin-top: 10px; }
+body.online-room[data-online-role="host"] .online-invite { display: block; }
 .online-board {
   margin-top: 14px; display: grid; gap: 8px; background: var(--ink); border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px;
   color: var(--muted); font-weight: 700; font-size: .92rem;
@@ -219,6 +221,9 @@ kbd {
 .gbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; padding: 12px 0 10px; flex: none; }
 .gbar__side { display: flex; gap: 10px; }
 .gbar__side--right { justify-content: flex-end; }
+.music-volume { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 2px solid var(--line); border-radius: 14px; background: var(--ink2); color: var(--paper); font-size: .9rem; }
+.music-volume input { width: 92px; accent-color: var(--mint); cursor: pointer; }
+.music-volume output { min-width: 3ch; color: var(--mint); font-weight: 800; font-variant-numeric: tabular-nums; }
 
 .timer { min-width: 300px; text-align: center; background: var(--ink2); border: 3px solid var(--line); border-bottom: 7px solid var(--line); border-radius: 22px; padding: 6px 22px 10px; }
 .timer__time { font: 700 clamp(2.4rem, 7vh, 4rem)/1.05 'Fredoka', sans-serif; font-variant-numeric: tabular-nums; }
@@ -369,6 +374,8 @@ body.online-room #pauseBtn { display: none; }
   .panel { padding: 18px; }
   .names { grid-template-columns: 1fr; gap: 8px; }
   .chip { padding: 9px 12px; font-size: .95rem; }
+  .music-volume { gap: 5px; padding: 4px 6px; }
+  .music-volume input { width: 56px; }
   .duel-banner { padding: 24px; }
 }
 

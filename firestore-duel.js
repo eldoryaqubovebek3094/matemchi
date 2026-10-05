@@ -18,6 +18,7 @@
   const regenerateRoomCodeBtn = $('regenerateRoomCodeBtn');
   const createRoomBtn = $('createRoomBtn');
   const joinRoomBtn = $('joinRoomBtn');
+  const shareRoomBtn = $('shareRoomBtn');
   const readyRoomBtn = $('readyRoomBtn');
   const onlineStatusEl = $('onlineStatus');
   const onlineOpponentEl = $('onlineOpponent');
@@ -55,6 +56,8 @@
   const safeName = (value, fallback) => (value || '').trim().slice(0, 20) || fallback;
   const ROOM_CODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const ROOM_CODE_LENGTH = 8;
+  const inviteCode = new URLSearchParams(window.location.search).get('room') || '';
+  const validInviteCode = /^[A-Z0-9]{8}$/i.test(inviteCode) ? inviteCode.toUpperCase() : '';
   const serverNow = () => Date.now() + state.serverOffsetMs;
   const timestampMs = (value) => value && typeof value.toMillis === 'function' ? value.toMillis() : Number(value) || 0;
   const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
@@ -456,6 +459,37 @@
     }
   }
 
+  async function shareRoomInvite() {
+    if (state.role !== 'host' || !state.roomCode) {
+      setStatus('Taklif havolasini olish uchun avval xona yarating.', true);
+      return;
+    }
+    const inviteUrl = new URL(window.location.pathname, window.location.origin);
+    inviteUrl.searchParams.set('room', state.roomCode);
+    const shareData = {
+      title: 'Mobil duelga taklif',
+      text: 'Duelga qo‘shilish uchun ushbu havolani oching:',
+      url: inviteUrl.toString(),
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setStatus('Taklif havolasi ulashildi.');
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareData.url);
+        setStatus('Taklif havolasi nusxalandi. Do‘stingizga yuboring.');
+        return;
+      }
+      setStatus('Bu qurilmada havolani ulashish yoki nusxalash qo‘llab-quvvatlanmaydi.', true);
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      console.error('Duel taklif havolasini ulashib bo‘lmadi.', error);
+      setStatus('Havolani ulashib bo‘lmadi. Qayta urinib ko‘ring.', true);
+    }
+  }
+
   function enterRoom(code, role, roomRef) {
     state.roomCode = code;
     state.role = role;
@@ -661,6 +695,7 @@
   document.querySelectorAll('[data-mobile-back]').forEach((button) => button.addEventListener('click', () => showMobileView('choices')));
   createRoomBtn && createRoomBtn.addEventListener('click', createRoom);
   joinRoomBtn && joinRoomBtn.addEventListener('click', joinRoom);
+  shareRoomBtn && shareRoomBtn.addEventListener('click', shareRoomInvite);
   readyRoomBtn && readyRoomBtn.addEventListener('click', setReady);
   const leaveRoomBtn = $('leaveRoomBtn');
   leaveRoomBtn && leaveRoomBtn.addEventListener('click', leaveRoom);
@@ -674,8 +709,13 @@
     });
   });
 
+  const hasSavedRoom = Boolean(localStorage.getItem('mp_room_code'));
+  if (isMobile() && validInviteCode && !hasSavedRoom) {
+    showMobileView('join');
+    if (joinCodeInput) joinCodeInput.value = validInviteCode;
+  }
   restoreRoom();
-  if (isMobile() && !localStorage.getItem('mp_room_code')) connectFirestore();
+  if (isMobile() && !hasSavedRoom) connectFirestore();
   mobileQuery.addEventListener('change', (event) => {
     if (!event.matches || state.roomRef) return;
     if (localStorage.getItem('mp_room_code') && localStorage.getItem('mp_room_role')) restoreRoom();
