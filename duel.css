@@ -56,8 +56,20 @@ body.duel {
 @keyframes waiting-dots {
   50% { opacity: .35; transform: translateY(-2px); }
 }
-.online-leave { display: none; margin: 8px auto 0; }
-body.online-room .online-leave { display: block; }
+.online-leave {
+  display: none; width: 100%; min-height: 46px; align-items: center; justify-content: center; gap: 9px;
+  margin: 12px auto 0; padding: 9px 14px; border: 1px solid rgba(255, 93, 115, .34); border-radius: 14px;
+  background: rgba(255, 93, 115, .08); color: #ff9cab; cursor: pointer;
+  font: 800 .92rem 'Nunito', sans-serif; transition: background .16s, border-color .16s, color .16s, transform .16s;
+}
+.online-leave svg {
+  width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.online-leave:hover { transform: translateY(-1px); border-color: rgba(255, 93, 115, .65); background: rgba(255, 93, 115, .15); color: #ffd2d8; }
+.online-leave:active { transform: translateY(1px); }
+.online-leave:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+body.online-room .online-leave { display: flex; }
 .online-invite { display: none; width: 100%; min-height: 48px; margin-top: 10px; }
 body.online-room[data-online-role="host"] .online-invite { display: block; }
 .online-board {
