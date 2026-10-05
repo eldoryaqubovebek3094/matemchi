@@ -441,7 +441,17 @@ body.online-room #pauseBtn { display: none; }
   .mobile-duel__choices > p { margin: 0; color: var(--muted); font-size: .98rem; line-height: 1.45; }
   .mobile-duel__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
   .mobile-duel__actions .btn-chunk { min-height: 52px; padding: 11px 12px; font-size: 1rem; line-height: 1.15; white-space: normal; }
-  .mobile-duel__back { margin: 0 0 14px; padding: 6px 0; border: 0; background: none; color: var(--sky); font: 800 .98rem 'Nunito', sans-serif; }
+  .mobile-duel__back {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin: 0 0 14px; padding: 7px 13px;
+    border: 1px solid rgba(76, 195, 255, .28); border-radius: 13px;
+    background: linear-gradient(115deg, rgba(76, 195, 255, .14), rgba(155, 109, 255, .12));
+    color: #8bd9ff; font: 800 .92rem 'Nunito', sans-serif; cursor: pointer;
+    transition: transform .16s, border-color .16s, background .16s, color .16s;
+    touch-action: manipulation;
+  }
+  .mobile-duel__back:hover { transform: translateX(-2px); border-color: rgba(76, 195, 255, .55); background: linear-gradient(115deg, rgba(76, 195, 255, .22), rgba(155, 109, 255, .18)); color: #c3edff; }
+  .mobile-duel__back:active { transform: translateX(-3px) scale(.98); }
+  .mobile-duel__back:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
   .mobile-duel__label { display: block; margin: 14px 0 6px; color: var(--muted); font-weight: 800; font-size: .94rem; }
   .mobile-duel__form > input { width: 100%; min-height: 54px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 14px; background: var(--ink); color: var(--paper); font: 800 1.25rem 'Fredoka', sans-serif; letter-spacing: .08em; }
   .mobile-duel__form > input::placeholder { color: #7771a5; letter-spacing: 0; }
