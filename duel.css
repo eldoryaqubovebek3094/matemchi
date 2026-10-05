@@ -437,6 +437,11 @@ body.online-room #pauseBtn { display: none; }
     border: 2px solid var(--line); border-bottom: 6px solid var(--sun-d); border-radius: 20px;
     padding: 18px; background: linear-gradient(145deg, #1a3b50, var(--ink2) 62%, #3f293b);
   }
+  .mobile-duel__choices.is-invite-expired {
+    border-color: rgba(255, 184, 77, .42);
+    background: linear-gradient(145deg, #3d3545, var(--ink2) 62%, #472d3b);
+  }
+  .mobile-duel__choices.is-invite-expired h2 { color: #ffbd72; }
   .mobile-duel h2 { margin: 0 0 6px; font: 700 1.5rem/1.15 'Fredoka', sans-serif; }
   .mobile-duel__choices > p { margin: 0; color: var(--muted); font-size: .98rem; line-height: 1.45; }
   .mobile-duel__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }

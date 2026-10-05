@@ -12,6 +12,8 @@
   const createCodeInput = $('createRoomCodeInput');
   const joinCodeInput = $('joinRoomCodeInput');
   const mobileRoomChoices = $('mobileRoomChoices');
+  const mobileRoomChoicesTitle = $('mobileRoomChoicesTitle');
+  const mobileRoomChoicesDescription = $('mobileRoomChoicesDescription');
   const mobileCreateForm = $('mobileCreateForm');
   const mobileJoinForm = $('mobileJoinForm');
   const mobileRoomLobby = $('mobileRoomLobby');
@@ -56,6 +58,9 @@
   const safeName = (value, fallback) => (value || '').trim().slice(0, 20) || fallback;
   const ROOM_CODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const ROOM_CODE_LENGTH = 8;
+  const DEFAULT_MOBILE_ROOM_TITLE = 'Do‘st bilan bellashuv';
+  const DEFAULT_MOBILE_ROOM_DESCRIPTION =
+    'Bir telefon xona yaratadi, ikkinchi o‘yinchi taklif havolasi yoki xona kodi bilan qo‘shiladi.';
   const inviteCode = new URLSearchParams(window.location.search).get('room') || '';
   const validInviteCode = /^[A-Z0-9]{8}$/i.test(inviteCode) ? inviteCode.toUpperCase() : '';
   const serverNow = () => Date.now() + state.serverOffsetMs;
@@ -63,6 +68,11 @@
   const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
 
   function showMobileView(view) {
+    if (view !== 'choices' && mobileRoomChoices) {
+      mobileRoomChoices.classList.remove('is-invite-expired');
+      if (mobileRoomChoicesTitle) mobileRoomChoicesTitle.textContent = DEFAULT_MOBILE_ROOM_TITLE;
+      if (mobileRoomChoicesDescription) mobileRoomChoicesDescription.textContent = DEFAULT_MOBILE_ROOM_DESCRIPTION;
+    }
     if (mobileRoomChoices) mobileRoomChoices.hidden = view !== 'choices';
     if (mobileCreateForm) mobileCreateForm.hidden = view !== 'create';
     if (mobileJoinForm) mobileJoinForm.hidden = view !== 'join';
@@ -429,7 +439,7 @@
     }
   }
 
-  async function joinRoom() {
+  async function joinRoom({ fromInvite = false } = {}) {
     if (state.roomRef) return setStatus('Boshqa xonaga kirishdan oldin joriy xonadan chiqing.', true);
     const loadingToken = showLoading('Xona qidirilmoqda', 'Kod tekshiriladi, bo‘sh o‘rin bo‘lsa sizni do‘stingizga ulaymiz.', 'join');
     try {
@@ -451,7 +461,20 @@
         });
         return true;
       });
-      if (!joined) return setStatus('Xona topilmadi, to‘la yoki o‘yin boshlangan.', true);
+      if (!joined) {
+        if (fromInvite) {
+          if (mobileRoomChoicesTitle) mobileRoomChoicesTitle.textContent = 'Bu taklif havolasi ishlamaydi';
+          if (mobileRoomChoicesDescription) {
+            mobileRoomChoicesDescription.textContent =
+              'Xona topilmadi, to‘la yoki o‘yin yakunlangan bo‘lishi mumkin. Yangi xona yarating yoki boshqa kod kiriting.';
+          }
+          if (mobileRoomChoices) mobileRoomChoices.classList.add('is-invite-expired');
+          showMobileView('choices');
+          setStatus('Eski taklif havolasi ishlamadi. Quyidagi amallardan birini tanlang.');
+          return;
+        }
+        return setStatus('Xona topilmadi, to‘la yoki o‘yin boshlangan.', true);
+      }
       enterRoom(code, 'guest', roomRef);
       setStatus(`Xona ${code} ga qo‘shildingiz. “Tayyorman”ni bossangiz o‘yin boshlanadi.`);
     } catch (error) {
@@ -784,7 +807,7 @@
   if (isMobile() && validInviteCode && !hasSavedRoom) {
     showMobileView('join');
     if (joinCodeInput) joinCodeInput.value = validInviteCode;
-    joinRoom();
+    joinRoom({ fromInvite: true });
   }
   restoreRoom();
   if (isMobile() && !hasSavedRoom) connectFirestore();
